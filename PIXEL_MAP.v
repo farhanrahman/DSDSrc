@@ -11,7 +11,6 @@ module	PIXEL_MAP(
 		oADDRESS,
 		oREADY_N);
 
-		
 input			CLK;			//Clock
 input			RESET_N;		//Asynchronous reset
 input			iREAD;			//Signal to output next address from FIFO
@@ -34,17 +33,6 @@ parameter	DISPLAY_HEIGHT = 15'd480;	//Defines the number of rows in the picture
 
 parameter	OUTPUT_ROW_INIT = 15'd0;	//Initialises the row counter to synchronise with display
 parameter	OUTPUT_COL_INIT = 15'd1;	//Initialises the column counter to synchronise with display
-
-wire cordic
-wire rotate
-wire blur =
-wire edge_detect
-
-assign cordic <=  = iSW[14];
-assign rotate <= iSW[15];
-assign blur <=   iSW[16];
-assign edge_detect <= iSW[17];
-
 
 //-----------------------------------------------------------------------------------------------------//
 //	A FIFO is used to buffer the calculated memory addresses
