@@ -11,6 +11,8 @@ module	PIXEL_MAP(
 		oADDRESS,
 		oREADY_N);
 
+		//testing for git commit
+		
 input			CLK;			//Clock
 input			RESET_N;		//Asynchronous reset
 input			iREAD;			//Signal to output next address from FIFO

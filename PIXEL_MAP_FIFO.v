@@ -45,7 +45,7 @@ module PIXEL_MAP_FIFO (
 	empty,
 	full,
 	q);
-
+//test
 	input	  aclr;
 	input	  clock;
 	input	[27:0]  data;
