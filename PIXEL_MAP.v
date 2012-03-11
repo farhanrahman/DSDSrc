@@ -28,11 +28,33 @@ wire			ADDRESS_VALID;	//Signal to indicate output address is valid
 wire			FIFO_WRITE;		//Signal to enable load into the FIFO
 wire			EN_PIX_COUNT;	//Signal to increment of the row and column counter
 
+reg 	[19:0]	x;
+reg 	[19:0]	y;
+
+reg 	[19:0]	x_s;
+reg 	[19:0]	y_s;
+
 parameter	DISPLAY_WIDTH = 15'd800;	//Defines the number of columns in the picture
 parameter	DISPLAY_HEIGHT = 15'd480;	//Defines the number of rows in the picture
 
+parameter	DISPLAY_CENTER_X = 15'd400;	
+parameter	DISPLAY_CENTER_Y = 15'd240;
+
 parameter	OUTPUT_ROW_INIT = 15'd0;	//Initialises the row counter to synchronise with display
 parameter	OUTPUT_COL_INIT = 15'd1;	//Initialises the column counter to synchronise with display
+
+//reg[7:0] SIN_THETA = 8'b00011100;
+//reg[7:0] COS_THETA = 8'b11111111;
+
+//reg[7:0] SIN_THETA = 8'b00000001;
+//reg[7:0] COS_THETA = 8'b00000000;
+
+reg[7:0] SIN_THETA = 8'h42;
+reg[7:0] COS_THETA = 8'hF7;
+
+reg[15:0] x_temp;
+reg[15:0] y_temp;
+
 
 //-----------------------------------------------------------------------------------------------------//
 //	A FIFO is used to buffer the calculated memory addresses
@@ -57,6 +79,8 @@ begin
 	begin
 		OUTPUT_COLUMN <= OUTPUT_COL_INIT;			//Initialise pixel index. 
 		OUTPUT_ROW <= OUTPUT_ROW_INIT;				//Initialisation values synchronise row and column counters to the display
+		//OUTPUT_COLUMN = (((OUTPUT_COL_INIT - DISPLAY_CENTER_X)*COS_THETA - (OUTPUT_ROW_INIT - DISPLAY_CENTER_Y)*SIN_THETA) >> 8) + DISPLAY_CENTER_X;
+		//OUTPUT_ROW 	  = (((OUTPUT_COL_INIT - DISPLAY_CENTER_X)*SIN_THETA + (OUTPUT_ROW_INIT - DISPLAY_CENTER_Y)*COS_THETA) >> 8) + DISPLAY_CENTER_Y;	
 	end
 	else
 		if	(EN_PIX_COUNT)							//The row and column are incremented when counter enable is asserted
@@ -71,16 +95,40 @@ begin
 			end
 			else
 				OUTPUT_COLUMN <= OUTPUT_COLUMN+15'b1;
-		end
+		end		
+end
+
+always@(OUTPUT_COLUMN or OUTPUT_ROW)// or DISPLAY_CENTER_X or DISPLAY_CENTER_Y or SIN_THETA or COS_THETA)
+begin
+		 //x_temp = OUTPUT_COLUMN - DISPLAY_CENTER_X;
+		 //y_temp = OUTPUT_ROW - DISPLAY_CENTER_Y;
+		 x 	= (((OUTPUT_COLUMN - DISPLAY_CENTER_X)*COS_THETA - (OUTPUT_ROW - DISPLAY_CENTER_Y)*SIN_THETA) / 256) + DISPLAY_CENTER_X;
+		 y 	= (((OUTPUT_COLUMN - DISPLAY_CENTER_X)*SIN_THETA + (OUTPUT_ROW - DISPLAY_CENTER_Y)*COS_THETA) / 256) + DISPLAY_CENTER_Y;
+		//x <= (OUTPUT_COLUMN*COS_THETA - OUTPUT_ROW*SIN_THETA) >> 8;
+		//y <= (OUTPUT_ROW*COS_THETA + OUTPUT_COLUMN*SIN_THETA) >> 8;
+end
+
+always@(posedge CLK or negedge RESET_N)
+begin
+	if(RESET_N == 0)
+	begin
+		x_s = 0;
+		y_s = 0;
+	end
+	else
+	begin
+		x_s = x;
+		y_s = y;
+	end
 end
 
 //	Frame sync signal
-assign	FRAME_SYNC = (EN_PIX_COUNT && (OUTPUT_ROW == DISPLAY_HEIGHT-15'b1) && (OUTPUT_COLUMN == DISPLAY_WIDTH-15'b1));
+assign	FRAME_SYNC = (EN_PIX_COUNT && (y_s == DISPLAY_HEIGHT-15'b1) && (x_s == DISPLAY_WIDTH-15'b1));
 
 //-----------------------------------------------------------------------------------------------------//
 //	Address calculation
 													//Calculate address with vertical flip
-assign 	PIXEL_ADDRESS = ((DISPLAY_HEIGHT-19'h1-OUTPUT_ROW)*DISPLAY_WIDTH+OUTPUT_COLUMN);
+assign 	PIXEL_ADDRESS = ((DISPLAY_HEIGHT-19'h1-y_s)*DISPLAY_WIDTH+x_s);
 assign	ADDRESS_VALID = 1'b1;						//Address is always valid
 
 //-----------------------------------------------------------------------------------------------------//
