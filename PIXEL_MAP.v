@@ -49,11 +49,21 @@ parameter	OUTPUT_COL_INIT = 15'd1;	//Initialises the column counter to synchroni
 //reg[7:0] SIN_THETA = 8'b00000001;
 //reg[7:0] COS_THETA = 8'b00000000;
 
-reg[7:0] SIN_THETA = 8'h42;
-reg[7:0] COS_THETA = 8'hF7;
+reg signed [7:0] SIN_THETA = 8'h00;
+reg signed [7:0] COS_THETA = 8'hFF;
 
-reg[15:0] x_temp;
-reg[15:0] y_temp;
+reg [13:0] counter = 0;
+reg Rotate;
+
+wire [6:0] THETA;
+
+wire signed [7:0] SIN;
+wire signed [7:0] COS;
+
+assign THETA = iSW[13:8];
+
+//reg[15:0] x_temp;
+//reg[15:0] y_temp;
 
 
 //-----------------------------------------------------------------------------------------------------//
@@ -69,6 +79,24 @@ PIXEL_MAP_FIFO	u0 (
 				.full (FIFO_FULL),
 				.q (oADDRESS)
 				);
+				
+//Sine lookup table
+
+sin_lut sine_lookup_table(
+	.address(THETA),
+	.clock(CLK),
+	.data(8'h00),
+	.wren(1'b0),
+	.q(SIN));
+
+//Cos lookup table
+cos_lut cos_lookup_table(
+	.address(THETA),
+	.clock(CLK),
+	.data(8'h00),
+	.wren(1'b0),
+	.q(COS));
+
 
 //-----------------------------------------------------------------------------------------------------//
 //	Pixel row and column counter
@@ -100,12 +128,28 @@ end
 
 always@(OUTPUT_COLUMN or OUTPUT_ROW)// or DISPLAY_CENTER_X or DISPLAY_CENTER_Y or SIN_THETA or COS_THETA)
 begin
-		 //x_temp = OUTPUT_COLUMN - DISPLAY_CENTER_X;
-		 //y_temp = OUTPUT_ROW - DISPLAY_CENTER_Y;
-		 x 	= (((OUTPUT_COLUMN - DISPLAY_CENTER_X)*COS_THETA - (OUTPUT_ROW - DISPLAY_CENTER_Y)*SIN_THETA) / 256) + DISPLAY_CENTER_X;
-		 y 	= (((OUTPUT_COLUMN - DISPLAY_CENTER_X)*SIN_THETA + (OUTPUT_ROW - DISPLAY_CENTER_Y)*COS_THETA) / 256) + DISPLAY_CENTER_Y;
-		//x <= (OUTPUT_COLUMN*COS_THETA - OUTPUT_ROW*SIN_THETA) >> 8;
-		//y <= (OUTPUT_ROW*COS_THETA + OUTPUT_COLUMN*SIN_THETA) >> 8;
+		 x 	= $signed((
+		 
+		    ($signed(OUTPUT_COLUMN) - $signed(DISPLAY_CENTER_X) + 32'sh0)*COS
+		  - ($signed(OUTPUT_ROW) 	- $signed(DISPLAY_CENTER_Y) + 32'sh0)*SIN) / 9'sd128)
+		  + DISPLAY_CENTER_X;
+		   
+		 y 	= $signed((
+		 
+			($signed(OUTPUT_COLUMN) - $signed(DISPLAY_CENTER_X) + 32'sh0)*SIN 
+		+ 	($signed(OUTPUT_ROW) 	- $signed(DISPLAY_CENTER_Y) + 32'sh0)*COS) / 9'sd128) 
+		+ 	DISPLAY_CENTER_Y;
+end
+
+always@(posedge CLK)
+begin
+	counter = counter + 1;
+	Rotate = 0;
+	if(counter == 10000)
+	begin
+		counter = 0;
+		Rotate = 1;
+	end
 end
 
 always@(posedge CLK or negedge RESET_N)
@@ -129,7 +173,7 @@ assign	FRAME_SYNC = (EN_PIX_COUNT && (y_s == DISPLAY_HEIGHT-15'b1) && (x_s == DI
 //	Address calculation
 													//Calculate address with vertical flip
 assign 	PIXEL_ADDRESS = ((DISPLAY_HEIGHT-19'h1-y_s)*DISPLAY_WIDTH+x_s);
-assign	ADDRESS_VALID = 1'b1;						//Address is always valid
+assign	ADDRESS_VALID = ~(x_s > DISPLAY_WIDTH || y_s > DISPLAY_HEIGHT);//1'b1;						//Address is always valid
 
 //-----------------------------------------------------------------------------------------------------//
 //	Counter and FIFO control
