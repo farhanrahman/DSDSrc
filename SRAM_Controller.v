@@ -65,6 +65,10 @@ output			SRAM_GW_N;
 output			SRAM_OE_N;
 output			SRAM_WE_N;
 
+
+
+	
+
 //-----------------------------------------------------------------------------------------------------//
 //	Signals
 
@@ -125,6 +129,10 @@ parameter	DATA_OUT_WAIT = 4'hd;
 parameter	DATA_OUT_LATCH = 4'hf;
 parameter	INIT = 4'h0, IDLE_SETUP = 4'h1;
 
+
+
+
+
 //-----------------------------------------------------------------------------------------------------//
 //	Pixel Transformation and Address Calculation
 PIXEL_MAP PT1(
@@ -139,9 +147,16 @@ PIXEL_MAP PT1(
 //-----------------------------------------------------------------------------------------------------//
 //	FIFOS
 		
+reg[29:0] P1,P2,P3,P4,P5,P6,P7,P8,P9;
+
+wire [29:0] EFIFO1_output; 
+wire [29:0] EFIFO2_output;
+wire [29:0] EFIFO1_input; 
+wire [29:0] EFIFO2_input;		
+		
 CCD_FIFO	CCD_FIFO_inst (
 		.aclr (~RESET_N),
-		.data (CCD_FIFO_IN),
+		.data (P9),
 		.rdclk (CLK),
 		.rdreq (CCD_FIFO_RD),
 		.wrclk (CCD_FIFO_WRCLK),
@@ -150,6 +165,47 @@ CCD_FIFO	CCD_FIFO_inst (
 		.rdusedw (CCD_FIFO_USED),
 		.wrfull (CCD_FIFO_FULL)
 	);
+	
+	
+
+
+	
+screen_fifo EFIFO1(
+	.clock(CLK),
+	.shiftin(P3),
+	.shiftout(EFIFO1_output),
+	.taps());
+	
+screen_fifo EFIFO2(
+	.clock(CLK),
+	.shiftin(P6),
+	.shiftout(EFIFO2_output),
+	.taps());
+	
+always@(posedge CLK)
+begin
+/*	P9 <= CCD_FIFO_IN;
+	P8 <= P9;
+	P7 <= P8;
+	//EFIFO1_input <= P7;
+	P6 <= EFIFO1_output;
+	P4 <= P5;
+	//EFIFO2_input <= P4;
+	P3 <= EFIFO2_output;
+	P2 <= P3;
+	P1 <= P2;*/
+	
+	P1 = CCD_FIFO_IN;
+	P2 = P1;
+	P3 = P2;
+	P4 = EFIFO1_output;
+	P5 = P4;
+	P6 = P5;
+	P7 = EFIFO2_output;
+	P8 = P7;
+	P9 = P8;
+	
+end	
 	
 assign CCD_FIFO_EMPTY = (CCD_FIFO_USED[9:2] == 8'h00);	//Stop reading when FIFO contains less than 4 words
 assign DISP_FIFO_FULL = (DISP_FIFO_USED[9:2] == 8'hff); //Stop writing when FIFO contains less than 4 spaces

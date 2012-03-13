@@ -52,10 +52,11 @@ parameter	OUTPUT_COL_INIT = 15'd1;	//Initialises the column counter to synchroni
 reg signed [7:0] SIN_THETA = 8'h00;
 reg signed [7:0] COS_THETA = 8'hFF;
 
-reg [13:0] counter = 0;
+reg [22:0] counter = 0;
 reg Rotate;
 
 wire [6:0] THETA;
+reg	 [6:0] THETA_INCR;
 
 wire signed [7:0] SIN;
 wire signed [7:0] COS;
@@ -83,7 +84,7 @@ PIXEL_MAP_FIFO	u0 (
 //Sine lookup table
 
 sin_lut sine_lookup_table(
-	.address(THETA),
+	.address(THETA_INCR),
 	.clock(CLK),
 	.data(8'h00),
 	.wren(1'b0),
@@ -91,7 +92,7 @@ sin_lut sine_lookup_table(
 
 //Cos lookup table
 cos_lut cos_lookup_table(
-	.address(THETA),
+	.address(THETA_INCR),
 	.clock(CLK),
 	.data(8'h00),
 	.wren(1'b0),
@@ -145,11 +146,27 @@ always@(posedge CLK)
 begin
 	counter = counter + 1;
 	Rotate = 0;
-	if(counter == 10000)
+	if(counter == 5000000)
 	begin
 		counter = 0;
 		Rotate = 1;
 	end
+	
+	if (iSW[15])
+		begin
+			if (Rotate == 1)
+				// if (THETA_INCR >= 72)
+				// begin
+					// THETA_INCR <= THETA_INCR - 72;
+				// end	
+			begin
+				THETA_INCR <= THETA + THETA_INCR;
+			end		
+		end
+	else
+		begin
+			THETA_INCR <= THETA;
+		end
 end
 
 always@(posedge CLK or negedge RESET_N)
