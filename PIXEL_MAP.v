@@ -190,7 +190,7 @@ assign	FRAME_SYNC = (EN_PIX_COUNT && (y_s == DISPLAY_HEIGHT-15'b1) && (x_s == DI
 //	Address calculation
 													//Calculate address with vertical flip
 assign 	PIXEL_ADDRESS = ((DISPLAY_HEIGHT-19'h1-y_s)*DISPLAY_WIDTH+x_s);
-assign	ADDRESS_VALID = ~(x_s > DISPLAY_WIDTH || y_s > DISPLAY_HEIGHT);//1'b1;						//Address is always valid
+assign	ADDRESS_VALID = ~(x_s >= DISPLAY_WIDTH || y_s >= DISPLAY_HEIGHT);//1'b1;						//Address is always valid
 
 //-----------------------------------------------------------------------------------------------------//
 //	Counter and FIFO control

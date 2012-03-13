@@ -130,7 +130,47 @@ parameter	DATA_OUT_LATCH = 4'hf;
 parameter	INIT = 4'h0, IDLE_SETUP = 4'h1;
 
 
+reg [29:0] edgeDetectSum; //sum of maskX + sum of maskY convolution
 
+reg signed [29:0] maskEdgeX [8:0];
+reg signed [29:0] maskEdgeY [8:0];
+
+
+reg signed [29:0] SumTopRowX;
+reg signed [29:0] SumMidRowX;
+reg signed [29:0] SumBotRowX;
+
+reg signed [29:0] SumTopRowY;
+reg signed [29:0] SumMidRowY;
+reg signed [29:0] SumBotRowY;
+
+reg [9:0] RGBSum;
+
+reg signed [29:0] SumX;
+reg signed [29:0] SumY;
+
+initial
+begin
+	maskEdgeX[0] = -1;
+	maskEdgeX[1] =  0;
+	maskEdgeX[2] =	1;
+	maskEdgeX[3] = -2;
+	maskEdgeX[4] =	0;
+	maskEdgeX[5] = 	2;
+	maskEdgeX[6] = -1;
+	maskEdgeX[7] = 	0;
+	maskEdgeX[8] = 	1;
+	
+	maskEdgeY[0] = 	1;
+	maskEdgeY[1] = 	2;
+	maskEdgeY[2] =	1;
+	maskEdgeY[3] = 	0;
+	maskEdgeY[4] =	0;
+	maskEdgeY[5] =	0; 
+	maskEdgeY[6] = -1;
+	maskEdgeY[7] = -2;
+	maskEdgeY[8] = -1;	
+end
 
 
 //-----------------------------------------------------------------------------------------------------//
@@ -156,7 +196,7 @@ wire [29:0] EFIFO2_input;
 		
 CCD_FIFO	CCD_FIFO_inst (
 		.aclr (~RESET_N),
-		.data (P9),
+		.data (edgeDetectSum),
 		.rdclk (CLK),
 		.rdreq (CCD_FIFO_RD),
 		.wrclk (CCD_FIFO_WRCLK),
@@ -194,8 +234,10 @@ begin
 	P3 <= EFIFO2_output;
 	P2 <= P3;
 	P1 <= P2;*/
-	
-	P1 = CCD_FIFO_IN;
+	RGBSum = (CCD_FIFO_IN[9:0] + CCD_FIFO_IN[19:10] + CCD_FIFO_IN[29:20])/3;
+	P1[9:0]   = RGBSum;
+	P1[19:10] = RGBSum;
+	P1[29:20] = RGBSum;
 	P2 = P1;
 	P3 = P2;
 	P4 = EFIFO1_output;
@@ -205,8 +247,22 @@ begin
 	P8 = P7;
 	P9 = P8;
 	
-end	
+	SumTopRowX = $signed($signed(maskEdgeX[0])*P1 + $signed(maskEdgeX[2])*P3);
+	SumMidRowX = $signed($signed(maskEdgeX[3])*P4 + $signed(maskEdgeX[5])*P6);
+	SumBotRowX = $signed($signed(maskEdgeX[6])*P7 + $signed(maskEdgeX[8])*P9);
 	
+	SumTopRowY = $signed($signed(maskEdgeY[0])*P1 + $signed(maskEdgeY[1])*P2 + $signed(maskEdgeY[2])*P3);
+	SumMidRowY = 0;
+	SumBotRowY = $signed($signed(maskEdgeY[6])*P7 + $signed(maskEdgeY[7])*P8 + $signed(maskEdgeY[8])*P9);
+	
+	SumX = SumTopRowX + SumMidRowX + SumBotRowX;
+	
+	SumY = SumTopRowY + SumMidRowY + SumBotRowY;
+	
+	edgeDetectSum = SumX + SumY;//($signed(SumX) < 0 ? -$signed(SumX) : SumX) + ($signed(SumY) < 0 ? -$signed(SumY) : SumY); 	
+	
+end	
+
 assign CCD_FIFO_EMPTY = (CCD_FIFO_USED[9:2] == 8'h00);	//Stop reading when FIFO contains less than 4 words
 assign DISP_FIFO_FULL = (DISP_FIFO_USED[9:2] == 8'hff); //Stop writing when FIFO contains less than 4 spaces
 	
