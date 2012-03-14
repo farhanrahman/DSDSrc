@@ -54,12 +54,12 @@ endmodule
 // Retrieval info: PRIVATE: NUMBER_OF_TAPS NUMERIC "1"
 // Retrieval info: PRIVATE: RAM_BLOCK_TYPE NUMERIC "0"
 // Retrieval info: PRIVATE: SYNTH_WRAPPER_GEN_POSTFIX STRING "1"
-// Retrieval info: PRIVATE: TAP_DISTANCE NUMERIC "1597"
+// Retrieval info: PRIVATE: TAP_DISTANCE NUMERIC "797"
 // Retrieval info: PRIVATE: WIDTH NUMERIC "24"
 // Retrieval info: CONSTANT: LPM_HINT STRING "RAM_BLOCK_TYPE=M512"
 // Retrieval info: CONSTANT: LPM_TYPE STRING "altshift_taps"
 // Retrieval info: CONSTANT: NUMBER_OF_TAPS NUMERIC "1"
-// Retrieval info: CONSTANT: TAP_DISTANCE NUMERIC "1597"
+// Retrieval info: CONSTANT: TAP_DISTANCE NUMERIC "797"
 // Retrieval info: CONSTANT: WIDTH NUMERIC "24"
 // Retrieval info: USED_PORT: clock 0 0 0 0 INPUT NODEFVAL clock
 // Retrieval info: USED_PORT: shiftin 0 0 24 0 INPUT NODEFVAL shiftin[23..0]

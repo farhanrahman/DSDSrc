@@ -169,8 +169,28 @@ begin
 	maskEdgeY[5] =	0; 
 	maskEdgeY[6] = -1;
 	maskEdgeY[7] = -2;
-	maskEdgeY[8] = -1;	
-end
+	maskEdgeY[8] = -1;
+
+	/*maskEdgeX[0] = 1;
+	maskEdgeX[1] = 2;
+	maskEdgeX[2] =	1;
+	maskEdgeX[3] = 2;
+	maskEdgeX[4] =	4;
+	maskEdgeX[5] = 2;
+	maskEdgeX[6] = 1;
+	maskEdgeX[7] = 2;
+	maskEdgeX[8] = 1;
+	              
+	maskEdgeY[0] = 1;
+	maskEdgeY[1] = 1;
+	maskEdgeY[2] =	1;
+	maskEdgeY[3] = 1;
+	maskEdgeY[4] =	1;
+	maskEdgeY[5] =	1; 
+	maskEdgeY[6] = 1;
+	maskEdgeY[7] = 1;
+	maskEdgeY[8] = 1;	*/	
+end               
 
 
 //-----------------------------------------------------------------------------------------------------//
@@ -194,9 +214,11 @@ wire [29:0] EFIFO2_output;
 wire [29:0] EFIFO1_input; 
 wire [29:0] EFIFO2_input;		
 		
+wire [29:0] CCD_Input;		
+		
 CCD_FIFO	CCD_FIFO_inst (
 		.aclr (~RESET_N),
-		.data (edgeDetectSum),
+		.data (CCD_Input),//edgeDetectSum),
 		.rdclk (CLK),
 		.rdreq (CCD_FIFO_RD),
 		.wrclk (CCD_FIFO_WRCLK),
@@ -211,18 +233,18 @@ CCD_FIFO	CCD_FIFO_inst (
 
 	
 screen_fifo EFIFO1(
-	.clock(CLK),
-	.shiftin(P3),
+	.clock(CCD_FIFO_WRCLK),
+	.shiftin(P7),//P3),
 	.shiftout(EFIFO1_output),
 	.taps());
 	
 screen_fifo EFIFO2(
-	.clock(CLK),
-	.shiftin(P6),
+	.clock(CCD_FIFO_WRCLK),
+	.shiftin(P4),//P6),
 	.shiftout(EFIFO2_output),
 	.taps());
 	
-always@(posedge CLK)
+always@(posedge CCD_FIFO_WRCLK)
 begin
 /*	P9 <= CCD_FIFO_IN;
 	P8 <= P9;
@@ -234,10 +256,11 @@ begin
 	P3 <= EFIFO2_output;
 	P2 <= P3;
 	P1 <= P2;*/
-	RGBSum = (CCD_FIFO_IN[9:0] + CCD_FIFO_IN[19:10] + CCD_FIFO_IN[29:20])/3;
-	P1[9:0]   = RGBSum;
-	P1[19:10] = RGBSum;
-	P1[29:20] = RGBSum;
+	/*RGBSum <= (CCD_FIFO_IN[9:0] + CCD_FIFO_IN[19:10] + CCD_FIFO_IN[29:20])/3;
+	P1[9:0]   <= RGBSum;
+	P1[19:10] <= RGBSum;
+	P1[29:20] <= RGBSum;
+	P1 = CCD_FIFO_IN;
 	P2 = P1;
 	P3 = P2;
 	P4 = EFIFO1_output;
@@ -245,23 +268,52 @@ begin
 	P6 = P5;
 	P7 = EFIFO2_output;
 	P8 = P7;
-	P9 = P8;
+	P9 = P8;*/
 	
-	SumTopRowX = $signed($signed(maskEdgeX[0])*P1 + $signed(maskEdgeX[2])*P3);
+	RGBSum <= (CCD_FIFO_IN[9:0] + CCD_FIFO_IN[19:10] + CCD_FIFO_IN[29:20])/3;
+	P9[9:0]   <= RGBSum;
+	P9[19:10] <= RGBSum;
+	P9[29:20] <= RGBSum;
+	P8 = P9;
+	P7 = P8;
+	P6 = EFIFO1_output;
+	P5 = P6;
+	P4 = P5;
+	P3 = EFIFO2_output;
+	P2 = P3;
+	P1 = P2;	
+	
+	/*SumTopRowX = $signed($signed(maskEdgeX[0])*P1 + $signed(maskEdgeX[2])*P3);
 	SumMidRowX = $signed($signed(maskEdgeX[3])*P4 + $signed(maskEdgeX[5])*P6);
 	SumBotRowX = $signed($signed(maskEdgeX[6])*P7 + $signed(maskEdgeX[8])*P9);
 	
 	SumTopRowY = $signed($signed(maskEdgeY[0])*P1 + $signed(maskEdgeY[1])*P2 + $signed(maskEdgeY[2])*P3);
 	SumMidRowY = 0;
-	SumBotRowY = $signed($signed(maskEdgeY[6])*P7 + $signed(maskEdgeY[7])*P8 + $signed(maskEdgeY[8])*P9);
+	SumBotRowY = $signed($signed(maskEdgeY[6])*P7 + $signed(maskEdgeY[7])*P8 + $signed(maskEdgeY[8])*P9);*/
+
 	
-	SumX = SumTopRowX + SumMidRowX + SumBotRowX;
+end
+
+always@(*)
+begin
+	SumTopRowX <= maskEdgeX[0]*P9 + maskEdgeX[1]*P8 + maskEdgeX[2]*P7;
+	SumMidRowX <= maskEdgeX[3]*P6 + maskEdgeX[4]*P5 + maskEdgeX[5]*P4;
+	SumBotRowX <= maskEdgeX[6]*P3 + maskEdgeX[7]*P2 + maskEdgeX[8]*P1;
 	
-	SumY = SumTopRowY + SumMidRowY + SumBotRowY;
+	SumTopRowY <= maskEdgeY[0]*P9 + maskEdgeY[1]*P8 + maskEdgeY[2]*P7;
+	SumMidRowY <= maskEdgeY[3]*P6 + maskEdgeY[4]*P5 + maskEdgeY[5]*P4;
+	SumBotRowY <= maskEdgeY[6]*P3 + maskEdgeY[7]*P2 + maskEdgeY[8]*P1;	
 	
-	edgeDetectSum = SumX + SumY;//($signed(SumX) < 0 ? -$signed(SumX) : SumX) + ($signed(SumY) < 0 ? -$signed(SumY) : SumY); 	
+	SumX <= SumTopRowX + SumMidRowX + SumBotRowX;
 	
-end	
+	SumY <= SumTopRowY + SumMidRowY + SumBotRowY;
+	
+	edgeDetectSum <= (($signed(SumX) < 0 ? -$signed(SumX) : SumX) + ($signed(SumY) < 0 ? -$signed(SumY) : SumY));		
+end
+
+assign CCD_Input = iSW[17] == 1 ? edgeDetectSum : P1;
+
+	
 
 assign CCD_FIFO_EMPTY = (CCD_FIFO_USED[9:2] == 8'h00);	//Stop reading when FIFO contains less than 4 words
 assign DISP_FIFO_FULL = (DISP_FIFO_USED[9:2] == 8'hff); //Stop writing when FIFO contains less than 4 spaces
