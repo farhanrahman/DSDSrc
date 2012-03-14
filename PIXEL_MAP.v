@@ -101,7 +101,7 @@ cos_lut cos_lookup_table(
 	.wren(1'b0),
 	.q(COS));
 
-CORDIC cordic(CLK, COS_CORDIC, SIN_CORDIC, THETA_INCR);
+CORDIC cordic(CLK, COS_CORDIC, SIN_CORDIC, THETA_INCR, reset);
 
 //-----------------------------------------------------------------------------------------------------//
 //	Pixel row and column counter
