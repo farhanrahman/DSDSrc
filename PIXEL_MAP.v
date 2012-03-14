@@ -61,6 +61,9 @@ reg	 [6:0] THETA_INCR;
 wire signed [7:0] SIN;
 wire signed [7:0] COS;
 
+wire signed [7:0] SIN_CORDIC;
+wire signed [7:0] COS_CORDIC;
+
 assign THETA = iSW[13:8];
 
 //reg[15:0] x_temp;
@@ -98,6 +101,7 @@ cos_lut cos_lookup_table(
 	.wren(1'b0),
 	.q(COS));
 
+CORDIC cordic(CLK, COS_CORDIC, SIN_CORDIC, THETA_INCR, reset);
 
 //-----------------------------------------------------------------------------------------------------//
 //	Pixel row and column counter
@@ -129,7 +133,23 @@ end
 
 always@(OUTPUT_COLUMN or OUTPUT_ROW)// or DISPLAY_CENTER_X or DISPLAY_CENTER_Y or SIN_THETA or COS_THETA)
 begin
+	if (iSW[14]) 		// CORDIC method
+	begin
 		 x 	= $signed((
+		 
+		    ($signed(OUTPUT_COLUMN) - $signed(DISPLAY_CENTER_X) + 32'sh0)*COS_CORDIC
+		  - ($signed(OUTPUT_ROW) 	- $signed(DISPLAY_CENTER_Y) + 32'sh0)*SIN_CORDIC) / 9'sd128)
+		  + DISPLAY_CENTER_X;
+		   
+		 y 	= $signed((
+		 
+			($signed(OUTPUT_COLUMN) - $signed(DISPLAY_CENTER_X) + 32'sh0)*SIN_CORDIC 
+		+ 	($signed(OUTPUT_ROW) 	- $signed(DISPLAY_CENTER_Y) + 32'sh0)*COS_CORDIC) / 9'sd128) 
+		+ 	DISPLAY_CENTER_Y;
+	end
+	else				// LUT method
+	begin
+		x 	= $signed((
 		 
 		    ($signed(OUTPUT_COLUMN) - $signed(DISPLAY_CENTER_X) + 32'sh0)*COS
 		  - ($signed(OUTPUT_ROW) 	- $signed(DISPLAY_CENTER_Y) + 32'sh0)*SIN) / 9'sd128)
@@ -140,6 +160,7 @@ begin
 			($signed(OUTPUT_COLUMN) - $signed(DISPLAY_CENTER_X) + 32'sh0)*SIN 
 		+ 	($signed(OUTPUT_ROW) 	- $signed(DISPLAY_CENTER_Y) + 32'sh0)*COS) / 9'sd128) 
 		+ 	DISPLAY_CENTER_Y;
+	end
 end
 
 always@(posedge CLK)
@@ -155,10 +176,7 @@ begin
 	if (iSW[15])
 		begin
 			if (Rotate == 1)
-				// if (THETA_INCR >= 72)
-				// begin
-					// THETA_INCR <= THETA_INCR - 72;
-				// end	
+
 			begin
 				THETA_INCR <= THETA + THETA_INCR;
 			end		
@@ -166,7 +184,12 @@ begin
 	else
 		begin
 			THETA_INCR <= THETA;
-		end
+		end		
+				 
+		if (THETA_INCR >= 71)
+		begin
+			THETA_INCR <= THETA_INCR - 71;
+		 end	
 end
 
 always@(posedge CLK or negedge RESET_N)
