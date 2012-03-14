@@ -130,7 +130,7 @@ parameter	DATA_OUT_LATCH = 4'hf;
 parameter	INIT = 4'h0, IDLE_SETUP = 4'h1;
 
 
-reg [29:0] OutputPixel; //output pixel of blur/edge detect/nothing
+reg [29:0] edgeDetectSum; //sum of maskX + sum of maskY convolution
 
 reg signed [29:0] maskEdgeX [8:0];
 reg signed [29:0] maskEdgeY [8:0];
@@ -144,10 +144,7 @@ reg signed [29:0] SumTopRowY;
 reg signed [29:0] SumMidRowY;
 reg signed [29:0] SumBotRowY;
 
-reg [10:0] RGBSum;
-reg [9:0] RedSum;
-reg [9:0] GreenSum;
-reg [9:0] BlueSum;
+reg [9:0] RGBSum;
 
 reg signed [29:0] SumX;
 reg signed [29:0] SumY;
@@ -216,20 +213,12 @@ wire [29:0] EFIFO1_output;
 wire [29:0] EFIFO2_output;
 wire [29:0] EFIFO1_input; 
 wire [29:0] EFIFO2_input;		
-<<<<<<< HEAD
 		
 wire [29:0] CCD_Input;		
 		
 CCD_FIFO	CCD_FIFO_inst (
 		.aclr (~RESET_N),
 		.data (CCD_Input),//edgeDetectSum),
-=======
-
-
-CCD_FIFO	CCD_FIFO_inst (
-		.aclr (~RESET_N),
-		.data (OutputPixel),
->>>>>>> 9160140195a5983573e50a8f14545b1cbbf0d0b8
 		.rdclk (CLK),
 		.rdreq (CCD_FIFO_RD),
 		.wrclk (CCD_FIFO_WRCLK),
@@ -238,6 +227,9 @@ CCD_FIFO	CCD_FIFO_inst (
 		.rdusedw (CCD_FIFO_USED),
 		.wrfull (CCD_FIFO_FULL)
 	);
+	
+	
+
 
 	
 screen_fifo EFIFO1(
@@ -252,6 +244,7 @@ screen_fifo EFIFO2(
 	.shiftout(EFIFO2_output),
 	.taps());
 	
+	//This is for edge detection
 always@(posedge CCD_FIFO_WRCLK)
 begin
 /*	P9 <= CCD_FIFO_IN;
@@ -264,7 +257,6 @@ begin
 	P3 <= EFIFO2_output;
 	P2 <= P3;
 	P1 <= P2;*/
-<<<<<<< HEAD
 	/*RGBSum <= (CCD_FIFO_IN[9:0] + CCD_FIFO_IN[19:10] + CCD_FIFO_IN[29:20])/3;
 	P1[9:0]   <= RGBSum;
 	P1[19:10] <= RGBSum;
@@ -303,7 +295,7 @@ begin
 	
 end
 
-always@(*)
+always@(posedge CCD_FIFO_WRCLK)
 begin
 	SumTopRowX <= maskEdgeX[0]*P9 + maskEdgeX[1]*P8 + maskEdgeX[2]*P7;
 	SumMidRowX <= maskEdgeX[3]*P6 + maskEdgeX[4]*P5 + maskEdgeX[5]*P4;
@@ -312,81 +304,17 @@ begin
 	SumTopRowY <= maskEdgeY[0]*P9 + maskEdgeY[1]*P8 + maskEdgeY[2]*P7;
 	SumMidRowY <= maskEdgeY[3]*P6 + maskEdgeY[4]*P5 + maskEdgeY[5]*P4;
 	SumBotRowY <= maskEdgeY[6]*P3 + maskEdgeY[7]*P2 + maskEdgeY[8]*P1;	
-	
 	SumX <= SumTopRowX + SumMidRowX + SumBotRowX;
 	
 	SumY <= SumTopRowY + SumMidRowY + SumBotRowY;
 	
-	edgeDetectSum <= (($signed(SumX) < 0 ? -$signed(SumX) : SumX) + ($signed(SumY) < 0 ? -$signed(SumY) : SumY));		
+	edgeDetectSum <= (($signed(SumX) < 0 ? -$signed(SumX) : SumX) + ($signed(SumY) < 0 ? -$signed(SumY) : SumY));
+	//edgeDetectSum <= (P1 + P2 + P3 + P4 + P5 + P6 + P7 + P8 + P9) / 9;		
 end
 
 assign CCD_Input = iSW[17] == 1 ? edgeDetectSum : P1;
 
 	
-=======
-	if (iSW[17])
-	begin
-		RGBSum = (CCD_FIFO_IN[9:0] + CCD_FIFO_IN[19:10] + CCD_FIFO_IN[29:20])/3;
-		P1 = RGBSum;
-//		P1[9:0]   = RGBSum [10:1];
-//		P1[19:10] = RGBSum [10:1];
-//		P1[29:20] = RGBSum [10:1];
-		P2 = P1;
-		P3 = P2;
-		P4 = EFIFO1_output;
-		P5 = P4;
-		P6 = P5;
-		P7 = EFIFO2_output;
-		P8 = P7;
-		P9 = P8;
-//		
-//		SumTopRowX = $signed($signed(maskEdgeX[0])*P1 + $signed(maskEdgeX[2])*P3);
-//		SumMidRowX = $signed($signed(maskEdgeX[3])*P4 + $signed(maskEdgeX[5])*P6);
-//		SumBotRowX = $signed($signed(maskEdgeX[6])*P7 + $signed(maskEdgeX[8])*P9);
-//		
-//		SumTopRowY = $signed($signed(maskEdgeY[0])*P1 + $signed(maskEdgeY[1])*P2 + $signed(maskEdgeY[2])*P3);
-//		SumMidRowY = 0;
-//		SumBotRowY = $signed($signed(maskEdgeY[6])*P7 + $signed(maskEdgeY[7])*P8 + $signed(maskEdgeY[8])*P9);
-		
-		SumTopRowX = -P1 + P3;
-		SumMidRowX = -2*P4 + 2*P6;
-		SumBotRowX = -P7 + P9;
-		
-		SumTopRowY = -P1 + -2*P2 + -P3;
-		SumMidRowY = 0;
-		SumBotRowY = P7 + 2*P8 + P9;
-		
-		SumX = (SumTopRowX + SumMidRowX + SumBotRowX);
-		
-		SumY = SumTopRowY + SumMidRowY + SumBotRowY;
-		
-		OutputPixel <= ($signed(SumX) < 0 ? -$signed(SumX) : SumX) + ($signed(SumY) < 0 ? -$signed(SumY) : SumY); 	
-	end/*
-	else if (iSW[16])  // blur
-	begin
-		P1 = CCD_FIFO_IN;
-		P2 = P1;
-		P3 = P2;
-		P4 = EFIFO1_output;
-		P5 = P4;
-		P6 = P5;
-		P7 = EFIFO2_output;
-		P8 = P7;
-		P9 = P8;
-		
-		BlueSum = (P1[9:0] +P2[9:0] +P3[9:0] + P4[9:0] + P5[9:0] +P6[9:0] +P7[9:0] + P8[9:0] + P9[9:0])/9;
-		GreenSum = (P1[19:10] +P2[19:10] +P3[19:10] + P4[19:10] + P5[19:10] +P6[19:10] +P7[19:10] + P8[19:10] + P9[19:10])/9;
-		RedSum = (P1[29:20] +P2[29:20] +P3[29:20] + P4[29:20] + P5[29:20] +P6[29:20] +P7[29:20] + P8[29:20] + P9[29:20])/9;
-		
-		OutputPixel <= {RedSum, BlueSum, GreenSum}/3;
-		
-	end	*/
-	else 
-	begin
-		OutputPixel = CCD_FIFO_IN;
-	end
-end	
->>>>>>> 9160140195a5983573e50a8f14545b1cbbf0d0b8
 
 assign CCD_FIFO_EMPTY = (CCD_FIFO_USED[9:2] == 8'h00);	//Stop reading when FIFO contains less than 4 words
 assign DISP_FIFO_FULL = (DISP_FIFO_USED[9:2] == 8'hff); //Stop writing when FIFO contains less than 4 spaces
