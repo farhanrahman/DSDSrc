@@ -33,7 +33,7 @@
 //applicable agreement for further details.
 
 
-//altsyncram CLOCK_ENABLE_INPUT_A="BYPASS" CLOCK_ENABLE_OUTPUT_A="BYPASS" DEVICE_FAMILY="Cyclone II" ENABLE_RUNTIME_MOD="NO" INIT_FILE="sin_lut.hex" NUMWORDS_A=64 OPERATION_MODE="SINGLE_PORT" OUTDATA_ACLR_A="NONE" OUTDATA_REG_A="CLOCK0" POWER_UP_UNINITIALIZED="FALSE" WIDTH_A=8 WIDTH_BYTEENA_A=1 WIDTHAD_A=6 address_a clock0 data_a q_a wren_a
+//altsyncram CLOCK_ENABLE_INPUT_A="BYPASS" CLOCK_ENABLE_OUTPUT_A="BYPASS" DEVICE_FAMILY="Cyclone II" ENABLE_RUNTIME_MOD="NO" INIT_FILE="sin_lut.hex" NUMWORDS_A=72 OPERATION_MODE="SINGLE_PORT" OUTDATA_ACLR_A="NONE" OUTDATA_REG_A="CLOCK0" POWER_UP_UNINITIALIZED="FALSE" WIDTH_A=8 WIDTH_BYTEENA_A=1 WIDTHAD_A=7 address_a clock0 data_a q_a wren_a
 //VERSION_BEGIN 8.0 cbx_altsyncram 2008:03:26:267331 cbx_cycloneii 2008:02:23:252825 cbx_lpm_add_sub 2008:03:09:257947 cbx_lpm_compare 2008:02:23:252825 cbx_lpm_decode 2008:02:23:252825 cbx_lpm_mux 2008:02:23:252825 cbx_mgl 2008:04:11:273944 cbx_stratix 2008:02:23:252825 cbx_stratixii 2008:02:23:252825 cbx_stratixiii 2008:04:23:278548 cbx_util_mgl 2008:04:15:275689  VERSION_END
 // synthesis VERILOG_INPUT_VERSION VERILOG_2001
 // altera message_off 10463
@@ -51,7 +51,7 @@ module  sin_lut_altsyncram
 	q_a,
 	wren_a) /* synthesis synthesis_clearbox=1 */
 		/* synthesis ALTERA_ATTRIBUTE="OPTIMIZE_POWER_DURING_SYNTHESIS=NORMAL_COMPILATION" */;
-	input   [5:0]  address_a;
+	input   [6:0]  address_a;
 	input   clock0;
 	input   [7:0]  data_a;
 	output   [7:0]  q_a;
@@ -65,12 +65,12 @@ module  sin_lut_altsyncram
 	wire  [0:0]   wire_ram_block1a_5portadataout;
 	wire  [0:0]   wire_ram_block1a_6portadataout;
 	wire  [0:0]   wire_ram_block1a_7portadataout;
-	wire  [5:0]  address_a_wire;
+	wire  [6:0]  address_a_wire;
 
 	cycloneii_ram_block   ram_block1a_0
 	( 
 	.clk0(clock0),
-	.portaaddr({address_a_wire[5:0]}),
+	.portaaddr({address_a_wire[6:0]}),
 	.portadatain({data_a[0]}),
 	.portadataout(wire_ram_block1a_0portadataout[0:0]),
 	.portawe(wren_a),
@@ -107,9 +107,9 @@ module  sin_lut_altsyncram
 		ram_block1a_0.init_file = "sin_lut.hex",
 		ram_block1a_0.init_file_layout = "port_a",
 		ram_block1a_0.logical_ram_name = "ALTSYNCRAM",
-		ram_block1a_0.mem_init0 = 64'hB001A8AA2B001A8A,
+		ram_block1a_0.mem_init0 = 72'hB24FFE49AB64FFE4DA,
 		ram_block1a_0.operation_mode = "single_port",
-		ram_block1a_0.port_a_address_width = 6,
+		ram_block1a_0.port_a_address_width = 7,
 		ram_block1a_0.port_a_data_out_clear = "none",
 		ram_block1a_0.port_a_data_out_clock = "clock0",
 		ram_block1a_0.port_a_data_width = 1,
@@ -117,8 +117,8 @@ module  sin_lut_altsyncram
 		ram_block1a_0.port_a_disable_ce_on_output_registers = "on",
 		ram_block1a_0.port_a_first_address = 0,
 		ram_block1a_0.port_a_first_bit_number = 0,
-		ram_block1a_0.port_a_last_address = 63,
-		ram_block1a_0.port_a_logical_ram_depth = 64,
+		ram_block1a_0.port_a_last_address = 71,
+		ram_block1a_0.port_a_logical_ram_depth = 72,
 		ram_block1a_0.port_a_logical_ram_width = 8,
 		ram_block1a_0.power_up_uninitialized = "false",
 		ram_block1a_0.ram_block_type = "AUTO",
@@ -126,7 +126,7 @@ module  sin_lut_altsyncram
 	cycloneii_ram_block   ram_block1a_1
 	( 
 	.clk0(clock0),
-	.portaaddr({address_a_wire[5:0]}),
+	.portaaddr({address_a_wire[6:0]}),
 	.portadatain({data_a[1]}),
 	.portadataout(wire_ram_block1a_1portadataout[0:0]),
 	.portawe(wren_a),
@@ -163,9 +163,9 @@ module  sin_lut_altsyncram
 		ram_block1a_1.init_file = "sin_lut.hex",
 		ram_block1a_1.init_file_layout = "port_a",
 		ram_block1a_1.logical_ram_name = "ALTSYNCRAM",
-		ram_block1a_1.mem_init0 = 64'h6110DACC9D111726,
+		ram_block1a_1.mem_init0 = 72'h6BD1117ACDD9EEF376,
 		ram_block1a_1.operation_mode = "single_port",
-		ram_block1a_1.port_a_address_width = 6,
+		ram_block1a_1.port_a_address_width = 7,
 		ram_block1a_1.port_a_data_out_clear = "none",
 		ram_block1a_1.port_a_data_out_clock = "clock0",
 		ram_block1a_1.port_a_data_width = 1,
@@ -173,8 +173,8 @@ module  sin_lut_altsyncram
 		ram_block1a_1.port_a_disable_ce_on_output_registers = "on",
 		ram_block1a_1.port_a_first_address = 0,
 		ram_block1a_1.port_a_first_bit_number = 1,
-		ram_block1a_1.port_a_last_address = 63,
-		ram_block1a_1.port_a_logical_ram_depth = 64,
+		ram_block1a_1.port_a_last_address = 71,
+		ram_block1a_1.port_a_logical_ram_depth = 72,
 		ram_block1a_1.port_a_logical_ram_width = 8,
 		ram_block1a_1.power_up_uninitialized = "false",
 		ram_block1a_1.ram_block_type = "AUTO",
@@ -182,7 +182,7 @@ module  sin_lut_altsyncram
 	cycloneii_ram_block   ram_block1a_2
 	( 
 	.clk0(clock0),
-	.portaaddr({address_a_wire[5:0]}),
+	.portaaddr({address_a_wire[6:0]}),
 	.portadatain({data_a[2]}),
 	.portadataout(wire_ram_block1a_2portadataout[0:0]),
 	.portawe(wren_a),
@@ -219,9 +219,9 @@ module  sin_lut_altsyncram
 		ram_block1a_2.init_file = "sin_lut.hex",
 		ram_block1a_2.init_file_layout = "port_a",
 		ram_block1a_2.logical_ram_name = "ALTSYNCRAM",
-		ram_block1a_2.mem_init0 = 64'hEA0AF9A581B1B034,
+		ram_block1a_2.mem_init0 = 72'hB3CA0A79A4C15F5064,
 		ram_block1a_2.operation_mode = "single_port",
-		ram_block1a_2.port_a_address_width = 6,
+		ram_block1a_2.port_a_address_width = 7,
 		ram_block1a_2.port_a_data_out_clear = "none",
 		ram_block1a_2.port_a_data_out_clock = "clock0",
 		ram_block1a_2.port_a_data_width = 1,
@@ -229,8 +229,8 @@ module  sin_lut_altsyncram
 		ram_block1a_2.port_a_disable_ce_on_output_registers = "on",
 		ram_block1a_2.port_a_first_address = 0,
 		ram_block1a_2.port_a_first_bit_number = 2,
-		ram_block1a_2.port_a_last_address = 63,
-		ram_block1a_2.port_a_logical_ram_depth = 64,
+		ram_block1a_2.port_a_last_address = 71,
+		ram_block1a_2.port_a_logical_ram_depth = 72,
 		ram_block1a_2.port_a_logical_ram_width = 8,
 		ram_block1a_2.power_up_uninitialized = "false",
 		ram_block1a_2.ram_block_type = "AUTO",
@@ -238,7 +238,7 @@ module  sin_lut_altsyncram
 	cycloneii_ram_block   ram_block1a_3
 	( 
 	.clk0(clock0),
-	.portaaddr({address_a_wire[5:0]}),
+	.portaaddr({address_a_wire[6:0]}),
 	.portadatain({data_a[3]}),
 	.portadataout(wire_ram_block1a_3portadataout[0:0]),
 	.portawe(wren_a),
@@ -275,9 +275,9 @@ module  sin_lut_altsyncram
 		ram_block1a_3.init_file = "sin_lut.hex",
 		ram_block1a_3.init_file_layout = "port_a",
 		ram_block1a_3.logical_ram_name = "ALTSYNCRAM",
-		ram_block1a_3.mem_init0 = 64'h4C0652C92B71DA92,
+		ram_block1a_3.mem_init0 = 72'h696C06D2C96B3F9AD2,
 		ram_block1a_3.operation_mode = "single_port",
-		ram_block1a_3.port_a_address_width = 6,
+		ram_block1a_3.port_a_address_width = 7,
 		ram_block1a_3.port_a_data_out_clear = "none",
 		ram_block1a_3.port_a_data_out_clock = "clock0",
 		ram_block1a_3.port_a_data_width = 1,
@@ -285,8 +285,8 @@ module  sin_lut_altsyncram
 		ram_block1a_3.port_a_disable_ce_on_output_registers = "on",
 		ram_block1a_3.port_a_first_address = 0,
 		ram_block1a_3.port_a_first_bit_number = 3,
-		ram_block1a_3.port_a_last_address = 63,
-		ram_block1a_3.port_a_logical_ram_depth = 64,
+		ram_block1a_3.port_a_last_address = 71,
+		ram_block1a_3.port_a_logical_ram_depth = 72,
 		ram_block1a_3.port_a_logical_ram_width = 8,
 		ram_block1a_3.power_up_uninitialized = "false",
 		ram_block1a_3.ram_block_type = "AUTO",
@@ -294,7 +294,7 @@ module  sin_lut_altsyncram
 	cycloneii_ram_block   ram_block1a_4
 	( 
 	.clk0(clock0),
-	.portaaddr({address_a_wire[5:0]}),
+	.portaaddr({address_a_wire[6:0]}),
 	.portadatain({data_a[4]}),
 	.portadataout(wire_ram_block1a_4portadataout[0:0]),
 	.portawe(wren_a),
@@ -331,9 +331,9 @@ module  sin_lut_altsyncram
 		ram_block1a_4.init_file = "sin_lut.hex",
 		ram_block1a_4.init_file_layout = "port_a",
 		ram_block1a_4.logical_ram_name = "ALTSYNCRAM",
-		ram_block1a_4.mem_init0 = 64'h7001C9A498F1E324,
+		ram_block1a_4.mem_init0 = 72'hB27001C9A4D8FFE364,
 		ram_block1a_4.operation_mode = "single_port",
-		ram_block1a_4.port_a_address_width = 6,
+		ram_block1a_4.port_a_address_width = 7,
 		ram_block1a_4.port_a_data_out_clear = "none",
 		ram_block1a_4.port_a_data_out_clock = "clock0",
 		ram_block1a_4.port_a_data_width = 1,
@@ -341,8 +341,8 @@ module  sin_lut_altsyncram
 		ram_block1a_4.port_a_disable_ce_on_output_registers = "on",
 		ram_block1a_4.port_a_first_address = 0,
 		ram_block1a_4.port_a_first_bit_number = 4,
-		ram_block1a_4.port_a_last_address = 63,
-		ram_block1a_4.port_a_logical_ram_depth = 64,
+		ram_block1a_4.port_a_last_address = 71,
+		ram_block1a_4.port_a_logical_ram_depth = 72,
 		ram_block1a_4.port_a_logical_ram_width = 8,
 		ram_block1a_4.power_up_uninitialized = "false",
 		ram_block1a_4.ram_block_type = "AUTO",
@@ -350,7 +350,7 @@ module  sin_lut_altsyncram
 	cycloneii_ram_block   ram_block1a_5
 	( 
 	.clk0(clock0),
-	.portaaddr({address_a_wire[5:0]}),
+	.portaaddr({address_a_wire[6:0]}),
 	.portadatain({data_a[5]}),
 	.portadataout(wire_ram_block1a_5portadataout[0:0]),
 	.portawe(wren_a),
@@ -387,9 +387,9 @@ module  sin_lut_altsyncram
 		ram_block1a_5.init_file = "sin_lut.hex",
 		ram_block1a_5.init_file_layout = "port_a",
 		ram_block1a_5.logical_ram_name = "ALTSYNCRAM",
-		ram_block1a_5.mem_init0 = 64'h8000386387F1FC38,
+		ram_block1a_5.mem_init0 = 72'hC380003863C7FFFC78,
 		ram_block1a_5.operation_mode = "single_port",
-		ram_block1a_5.port_a_address_width = 6,
+		ram_block1a_5.port_a_address_width = 7,
 		ram_block1a_5.port_a_data_out_clear = "none",
 		ram_block1a_5.port_a_data_out_clock = "clock0",
 		ram_block1a_5.port_a_data_width = 1,
@@ -397,8 +397,8 @@ module  sin_lut_altsyncram
 		ram_block1a_5.port_a_disable_ce_on_output_registers = "on",
 		ram_block1a_5.port_a_first_address = 0,
 		ram_block1a_5.port_a_first_bit_number = 5,
-		ram_block1a_5.port_a_last_address = 63,
-		ram_block1a_5.port_a_logical_ram_depth = 64,
+		ram_block1a_5.port_a_last_address = 71,
+		ram_block1a_5.port_a_logical_ram_depth = 72,
 		ram_block1a_5.port_a_logical_ram_width = 8,
 		ram_block1a_5.power_up_uninitialized = "false",
 		ram_block1a_5.ram_block_type = "AUTO",
@@ -406,7 +406,7 @@ module  sin_lut_altsyncram
 	cycloneii_ram_block   ram_block1a_6
 	( 
 	.clk0(clock0),
-	.portaaddr({address_a_wire[5:0]}),
+	.portaaddr({address_a_wire[6:0]}),
 	.portadatain({data_a[6]}),
 	.portadataout(wire_ram_block1a_6portadataout[0:0]),
 	.portawe(wren_a),
@@ -443,9 +443,9 @@ module  sin_lut_altsyncram
 		ram_block1a_6.init_file = "sin_lut.hex",
 		ram_block1a_6.init_file_layout = "port_a",
 		ram_block1a_6.logical_ram_name = "ALTSYNCRAM",
-		ram_block1a_6.mem_init0 = 64'h000007E07FF1FFC0,
+		ram_block1a_6.mem_init0 = 72'hFC000007E03FFFFF80,
 		ram_block1a_6.operation_mode = "single_port",
-		ram_block1a_6.port_a_address_width = 6,
+		ram_block1a_6.port_a_address_width = 7,
 		ram_block1a_6.port_a_data_out_clear = "none",
 		ram_block1a_6.port_a_data_out_clock = "clock0",
 		ram_block1a_6.port_a_data_width = 1,
@@ -453,8 +453,8 @@ module  sin_lut_altsyncram
 		ram_block1a_6.port_a_disable_ce_on_output_registers = "on",
 		ram_block1a_6.port_a_first_address = 0,
 		ram_block1a_6.port_a_first_bit_number = 6,
-		ram_block1a_6.port_a_last_address = 63,
-		ram_block1a_6.port_a_logical_ram_depth = 64,
+		ram_block1a_6.port_a_last_address = 71,
+		ram_block1a_6.port_a_logical_ram_depth = 72,
 		ram_block1a_6.port_a_logical_ram_width = 8,
 		ram_block1a_6.power_up_uninitialized = "false",
 		ram_block1a_6.ram_block_type = "AUTO",
@@ -462,7 +462,7 @@ module  sin_lut_altsyncram
 	cycloneii_ram_block   ram_block1a_7
 	( 
 	.clk0(clock0),
-	.portaaddr({address_a_wire[5:0]}),
+	.portaaddr({address_a_wire[6:0]}),
 	.portadatain({data_a[7]}),
 	.portadataout(wire_ram_block1a_7portadataout[0:0]),
 	.portawe(wren_a),
@@ -499,9 +499,9 @@ module  sin_lut_altsyncram
 		ram_block1a_7.init_file = "sin_lut.hex",
 		ram_block1a_7.init_file_layout = "port_a",
 		ram_block1a_7.logical_ram_name = "ALTSYNCRAM",
-		ram_block1a_7.mem_init0 = 64'hFFFFFFE0000E0000,
+		ram_block1a_7.mem_init0 = 72'hFFFFFFFFE000000000,
 		ram_block1a_7.operation_mode = "single_port",
-		ram_block1a_7.port_a_address_width = 6,
+		ram_block1a_7.port_a_address_width = 7,
 		ram_block1a_7.port_a_data_out_clear = "none",
 		ram_block1a_7.port_a_data_out_clock = "clock0",
 		ram_block1a_7.port_a_data_width = 1,
@@ -509,8 +509,8 @@ module  sin_lut_altsyncram
 		ram_block1a_7.port_a_disable_ce_on_output_registers = "on",
 		ram_block1a_7.port_a_first_address = 0,
 		ram_block1a_7.port_a_first_bit_number = 7,
-		ram_block1a_7.port_a_last_address = 63,
-		ram_block1a_7.port_a_logical_ram_depth = 64,
+		ram_block1a_7.port_a_last_address = 71,
+		ram_block1a_7.port_a_logical_ram_depth = 72,
 		ram_block1a_7.port_a_logical_ram_width = 8,
 		ram_block1a_7.power_up_uninitialized = "false",
 		ram_block1a_7.ram_block_type = "AUTO",
@@ -532,7 +532,7 @@ module sin_lut (
 	wren,
 	q)/* synthesis synthesis_clearbox = 1 */;
 
-	input	[5:0]  address;
+	input	[6:0]  address;
 	input	  clock;
 	input	[7:0]  data;
 	input	  wren;
@@ -573,7 +573,7 @@ endmodule
 // Retrieval info: PRIVATE: JTAG_ID STRING "NONE"
 // Retrieval info: PRIVATE: MAXIMUM_DEPTH NUMERIC "0"
 // Retrieval info: PRIVATE: MIFfilename STRING "sin_lut.hex"
-// Retrieval info: PRIVATE: NUMWORDS_A NUMERIC "64"
+// Retrieval info: PRIVATE: NUMWORDS_A NUMERIC "72"
 // Retrieval info: PRIVATE: RAM_BLOCK_TYPE NUMERIC "0"
 // Retrieval info: PRIVATE: READ_DURING_WRITE_MODE_PORT_A NUMERIC "3"
 // Retrieval info: PRIVATE: RegAddr NUMERIC "1"
@@ -583,7 +583,7 @@ endmodule
 // Retrieval info: PRIVATE: SingleClock NUMERIC "1"
 // Retrieval info: PRIVATE: UseDQRAM NUMERIC "1"
 // Retrieval info: PRIVATE: WRCONTROL_ACLR_A NUMERIC "0"
-// Retrieval info: PRIVATE: WidthAddr NUMERIC "6"
+// Retrieval info: PRIVATE: WidthAddr NUMERIC "7"
 // Retrieval info: PRIVATE: WidthData NUMERIC "8"
 // Retrieval info: PRIVATE: rden NUMERIC "0"
 // Retrieval info: CONSTANT: CLOCK_ENABLE_INPUT_A STRING "BYPASS"
@@ -592,20 +592,20 @@ endmodule
 // Retrieval info: CONSTANT: INTENDED_DEVICE_FAMILY STRING "Cyclone II"
 // Retrieval info: CONSTANT: LPM_HINT STRING "ENABLE_RUNTIME_MOD=NO"
 // Retrieval info: CONSTANT: LPM_TYPE STRING "altsyncram"
-// Retrieval info: CONSTANT: NUMWORDS_A NUMERIC "64"
+// Retrieval info: CONSTANT: NUMWORDS_A NUMERIC "72"
 // Retrieval info: CONSTANT: OPERATION_MODE STRING "SINGLE_PORT"
 // Retrieval info: CONSTANT: OUTDATA_ACLR_A STRING "NONE"
 // Retrieval info: CONSTANT: OUTDATA_REG_A STRING "CLOCK0"
 // Retrieval info: CONSTANT: POWER_UP_UNINITIALIZED STRING "FALSE"
-// Retrieval info: CONSTANT: WIDTHAD_A NUMERIC "6"
+// Retrieval info: CONSTANT: WIDTHAD_A NUMERIC "7"
 // Retrieval info: CONSTANT: WIDTH_A NUMERIC "8"
 // Retrieval info: CONSTANT: WIDTH_BYTEENA_A NUMERIC "1"
-// Retrieval info: USED_PORT: address 0 0 6 0 INPUT NODEFVAL address[5..0]
+// Retrieval info: USED_PORT: address 0 0 7 0 INPUT NODEFVAL address[6..0]
 // Retrieval info: USED_PORT: clock 0 0 0 0 INPUT NODEFVAL clock
 // Retrieval info: USED_PORT: data 0 0 8 0 INPUT NODEFVAL data[7..0]
 // Retrieval info: USED_PORT: q 0 0 8 0 OUTPUT NODEFVAL q[7..0]
 // Retrieval info: USED_PORT: wren 0 0 0 0 INPUT NODEFVAL wren
-// Retrieval info: CONNECT: @address_a 0 0 6 0 address 0 0 6 0
+// Retrieval info: CONNECT: @address_a 0 0 7 0 address 0 0 7 0
 // Retrieval info: CONNECT: q 0 0 8 0 @q_a 0 0 8 0
 // Retrieval info: CONNECT: @clock0 0 0 0 0 clock 0 0 0 0
 // Retrieval info: CONNECT: @data_a 0 0 8 0 data 0 0 8 0

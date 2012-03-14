@@ -155,10 +155,7 @@ begin
 	if (iSW[15])
 		begin
 			if (Rotate == 1)
-				// if (THETA_INCR >= 72)
-				// begin
-					// THETA_INCR <= THETA_INCR - 72;
-				// end	
+
 			begin
 				THETA_INCR <= THETA + THETA_INCR;
 			end		
@@ -166,7 +163,12 @@ begin
 	else
 		begin
 			THETA_INCR <= THETA;
-		end
+		end		
+				 
+		if (THETA_INCR >= 71)
+		begin
+			THETA_INCR <= THETA_INCR - 71;
+		 end	
 end
 
 always@(posedge CLK or negedge RESET_N)
