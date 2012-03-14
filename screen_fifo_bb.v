@@ -32,11 +32,13 @@
 //applicable agreement for further details.
 
 module screen_fifo (
+	clken,
 	clock,
 	shiftin,
 	shiftout,
 	taps);
 
+	input	  clken;
 	input	  clock;
 	input	[29:0]  shiftin;
 	output	[29:0]  shiftout;
@@ -48,7 +50,7 @@ endmodule
 // CNX file retrieval info
 // ============================================================
 // Retrieval info: PRIVATE: ACLR NUMERIC "0"
-// Retrieval info: PRIVATE: CLKEN NUMERIC "0"
+// Retrieval info: PRIVATE: CLKEN NUMERIC "1"
 // Retrieval info: PRIVATE: GROUP_TAPS NUMERIC "0"
 // Retrieval info: PRIVATE: INTENDED_DEVICE_FAMILY STRING "Cyclone II"
 // Retrieval info: PRIVATE: NUMBER_OF_TAPS NUMERIC "1"
@@ -61,6 +63,7 @@ endmodule
 // Retrieval info: CONSTANT: NUMBER_OF_TAPS NUMERIC "1"
 // Retrieval info: CONSTANT: TAP_DISTANCE NUMERIC "797"
 // Retrieval info: CONSTANT: WIDTH NUMERIC "30"
+// Retrieval info: USED_PORT: clken 0 0 0 0 INPUT VCC clken
 // Retrieval info: USED_PORT: clock 0 0 0 0 INPUT NODEFVAL clock
 // Retrieval info: USED_PORT: shiftin 0 0 30 0 INPUT NODEFVAL shiftin[29..0]
 // Retrieval info: USED_PORT: shiftout 0 0 30 0 OUTPUT NODEFVAL shiftout[29..0]
@@ -69,6 +72,7 @@ endmodule
 // Retrieval info: CONNECT: shiftout 0 0 30 0 @shiftout 0 0 30 0
 // Retrieval info: CONNECT: taps 0 0 30 0 @taps 0 0 30 0
 // Retrieval info: CONNECT: @clock 0 0 0 0 clock 0 0 0 0
+// Retrieval info: CONNECT: @clken 0 0 0 0 clken 0 0 0 0
 // Retrieval info: LIBRARY: altera_mf altera_mf.altera_mf_components.all
 // Retrieval info: GEN_FILE: TYPE_NORMAL screen_fifo.v TRUE
 // Retrieval info: GEN_FILE: TYPE_NORMAL screen_fifo.inc FALSE

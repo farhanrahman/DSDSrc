@@ -33,7 +33,7 @@
 //applicable agreement for further details.
 
 
-//altshift_taps DEVICE_FAMILY="Cyclone II" NUMBER_OF_TAPS=1 RAM_BLOCK_TYPE="M512" TAP_DISTANCE=797 WIDTH=30 clock shiftin shiftout taps lpm_hint="RAM_BLOCK_TYPE=M512"
+//altshift_taps DEVICE_FAMILY="Cyclone II" NUMBER_OF_TAPS=1 RAM_BLOCK_TYPE="M512" TAP_DISTANCE=797 WIDTH=30 clken clock shiftin shiftout taps lpm_hint="RAM_BLOCK_TYPE=M512"
 //VERSION_BEGIN 8.0 cbx_altdpram 2008:03:07:257777 cbx_altshift_taps 2008:02:23:252825 cbx_altsyncram 2008:03:26:267331 cbx_cycloneii 2008:02:23:252825 cbx_lpm_add_sub 2008:03:09:257947 cbx_lpm_compare 2008:02:23:252825 cbx_lpm_counter 2008:02:23:252825 cbx_lpm_decode 2008:02:23:252825 cbx_lpm_mux 2008:02:23:252825 cbx_mgl 2008:04:11:273944 cbx_stratix 2008:02:23:252825 cbx_stratixii 2008:02:23:252825 cbx_stratixiii 2008:04:23:278548 cbx_util_mgl 2008:04:15:275689  VERSION_END
 // synthesis VERILOG_INPUT_VERSION VERILOG_2001
 // altera message_off 10463
@@ -2430,10 +2430,12 @@ endmodule //screen_fifo_cntr
 //synopsys translate_on
 module  screen_fifo_shift_taps
 	( 
+	clken,
 	clock,
 	shiftin,
 	shiftout,
 	taps) /* synthesis synthesis_clearbox=1 */;
+	input   clken;
 	input   clock;
 	input   [29:0]  shiftin;
 	output   [29:0]  shiftout;
@@ -2441,7 +2443,6 @@ module  screen_fifo_shift_taps
 
 	wire  [29:0]   wire_altsyncram2_q_b;
 	wire  [9:0]   wire_cntr1_q;
-	wire clken;
 
 	screen_fifo_altsyncram   altsyncram2
 	( 
@@ -2458,7 +2459,6 @@ module  screen_fifo_shift_taps
 	.clock(clock),
 	.q(wire_cntr1_q));
 	assign
-		clken = 1'b1,
 		shiftout = wire_altsyncram2_q_b[29:0],
 		taps = wire_altsyncram2_q_b;
 	initial/*synthesis enable_verilog_initial_construct*/
@@ -2473,11 +2473,13 @@ endmodule //screen_fifo_shift_taps
 `timescale 1 ps / 1 ps
 // synopsys translate_on
 module screen_fifo (
+	clken,
 	clock,
 	shiftin,
 	shiftout,
 	taps)/* synthesis synthesis_clearbox = 1 */;
 
+	input	  clken;
 	input	  clock;
 	input	[29:0]  shiftin;
 	output	[29:0]  shiftout;
@@ -2489,6 +2491,7 @@ module screen_fifo (
 	wire [29:0] shiftout = sub_wire1[29:0];
 
 	screen_fifo_shift_taps	screen_fifo_shift_taps_component (
+				.clken (clken),
 				.clock (clock),
 				.shiftin (shiftin),
 				.taps (sub_wire0),
@@ -2500,7 +2503,7 @@ endmodule
 // CNX file retrieval info
 // ============================================================
 // Retrieval info: PRIVATE: ACLR NUMERIC "0"
-// Retrieval info: PRIVATE: CLKEN NUMERIC "0"
+// Retrieval info: PRIVATE: CLKEN NUMERIC "1"
 // Retrieval info: PRIVATE: GROUP_TAPS NUMERIC "0"
 // Retrieval info: PRIVATE: INTENDED_DEVICE_FAMILY STRING "Cyclone II"
 // Retrieval info: PRIVATE: NUMBER_OF_TAPS NUMERIC "1"
@@ -2513,6 +2516,7 @@ endmodule
 // Retrieval info: CONSTANT: NUMBER_OF_TAPS NUMERIC "1"
 // Retrieval info: CONSTANT: TAP_DISTANCE NUMERIC "797"
 // Retrieval info: CONSTANT: WIDTH NUMERIC "30"
+// Retrieval info: USED_PORT: clken 0 0 0 0 INPUT VCC clken
 // Retrieval info: USED_PORT: clock 0 0 0 0 INPUT NODEFVAL clock
 // Retrieval info: USED_PORT: shiftin 0 0 30 0 INPUT NODEFVAL shiftin[29..0]
 // Retrieval info: USED_PORT: shiftout 0 0 30 0 OUTPUT NODEFVAL shiftout[29..0]
@@ -2521,6 +2525,7 @@ endmodule
 // Retrieval info: CONNECT: shiftout 0 0 30 0 @shiftout 0 0 30 0
 // Retrieval info: CONNECT: taps 0 0 30 0 @taps 0 0 30 0
 // Retrieval info: CONNECT: @clock 0 0 0 0 clock 0 0 0 0
+// Retrieval info: CONNECT: @clken 0 0 0 0 clken 0 0 0 0
 // Retrieval info: LIBRARY: altera_mf altera_mf.altera_mf_components.all
 // Retrieval info: GEN_FILE: TYPE_NORMAL screen_fifo.v TRUE
 // Retrieval info: GEN_FILE: TYPE_NORMAL screen_fifo.inc FALSE

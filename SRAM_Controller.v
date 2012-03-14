@@ -146,8 +146,8 @@ reg signed [29:0] SumBotRowY;
 
 reg [9:0] RGBSum;
 
-reg signed [29:0] SumX;
-reg signed [29:0] SumY;
+reg signed [31:0] SumX;
+reg signed [31:0] SumY;
 
 initial
 begin
@@ -209,10 +209,27 @@ PIXEL_MAP PT1(
 		
 reg[29:0] P1,P2,P3,P4,P5,P6,P7,P8,P9;
 
+reg[29:0] P1Red,P2Red,P3Red,P4Red,P5Red,P6Red,P7Red,P8Red,P9Red;
+reg[29:0] P1Blue,P2Blue,P3Blue,P4Blue,P5Blue,P6Blue,P7Blue,P8Blue,P9Blue;
+reg[29:0] P1Green,P2Green,P3Green,P4Green,P5Green,P6Green,P7Green,P8Green,P9Green;
+
+reg[29:0] P1Red_s;
+reg[29:0] P1Blue_s;
+reg[29:0] P1Green_s;
+
 wire [29:0] EFIFO1_output; 
 wire [29:0] EFIFO2_output;
 wire [29:0] EFIFO1_input; 
 wire [29:0] EFIFO2_input;		
+		
+wire [29:0] fifoRed1_output; 
+wire [29:0] fifoRed2_output;
+
+wire [29:0] fifoGreen1_output; 
+wire [29:0] fifoGreen2_output;
+
+wire [29:0] fifoBlue1_output; 
+wire [29:0] fifoBlue2_output;		
 		
 wire [29:0] CCD_Input;		
 		
@@ -230,21 +247,107 @@ CCD_FIFO	CCD_FIFO_inst (
 	
 	
 
-
-	
 screen_fifo EFIFO1(
 	.clock(CCD_FIFO_WRCLK),
 	.shiftin(P7),//P3),
 	.shiftout(EFIFO1_output),
+	.clken(CCD_FIFO_WE),
 	.taps());
 	
 screen_fifo EFIFO2(
 	.clock(CCD_FIFO_WRCLK),
 	.shiftin(P4),//P6),
 	.shiftout(EFIFO2_output),
+	.clken(CCD_FIFO_WE),
+	.taps());
+
+	
+/*screen_fifo fifoRed1(
+	.clock(CCD_FIFO_WRCLK),
+	.shiftin(P7Red),//P3),
+	.shiftout(fifoRed1_output),
 	.taps());
 	
+screen_fifo fifoRed2(
+	.clock(CCD_FIFO_WRCLK),
+	.shiftin(P4Red),//P6),
+	.shiftout(fifoRed2_output),
+	.taps());
+	
+
+screen_fifo fifoGreen1(
+	.clock(CCD_FIFO_WRCLK),
+	.shiftin(P7Green),//P3),
+	.shiftout(fifoGreen1_output),
+	.taps());
+	
+screen_fifo fifoGreen2(
+	.clock(CCD_FIFO_WRCLK),
+	.shiftin(P4Green),//P6),
+	.shiftout(fifoGreen2_output),
+	.taps());
+	
+screen_fifo fifoBlue1(
+	.clock(CCD_FIFO_WRCLK),
+	.shiftin(P7Blue),//P3),
+	.shiftout(fifoBlue1_output),
+	.taps());
+	
+screen_fifo fifoBlue2(
+	.clock(CCD_FIFO_WRCLK),
+	.shiftin(P4Blue),//P6),
+	.shiftout(fifoBlue2_output),
+	.taps());
+	
+	
 	//This is for edge detection
+
+always@(posedge CCD_FIFO_WRCLK)
+begin
+	P9Red <= CCD_FIFO_IN[29:20];
+	P9Green <= CCD_FIFO_IN[19:10];
+	P9Blue <= CCD_FIFO_IN[9:0];
+	
+	P8Red <= P9Red;
+	P8Green <= P9Green;
+	P8Blue <= P9Blue;
+	
+	P7Red <= P8Red;
+	P7Green <= P8Green;
+	P7Blue <= P8Blue;
+	
+	P6Red <= fifoRed1_output;
+	P6Green <= fifoGreen1_output;	
+	P6Blue <= fifoBlue1_output;	
+	
+	P5Red <= P6Red;
+	P5Green <= P6Green;
+	P5Blue <= P6Blue;
+
+	P4Red <= P5Red;
+	P4Green <= P5Green;
+	P4Blue <= P5Blue;
+	
+	P3Red <= fifoRed2_output;
+	P3Green <= fifoGreen2_output;
+	P3Blue <= fifoBlue2_output;
+	
+	P2Red <= P3Red;
+	P2Green <= P3Green;
+	P2Blue <= P3Blue;
+	
+	P1Red <= P2Red;
+	P1Green <= P2Green;	
+	P1Blue <= P2Blue;		
+end
+
+always@(posedge CCD_FIFO_WRCLK)
+begin
+	P1Red_s <= P1Red;
+	P1Green_s <= P1Green;
+	P1Blue_s <= P1Blue;
+end	*/
+	
 always@(posedge CCD_FIFO_WRCLK)
 begin
 /*	P9 <= CCD_FIFO_IN;
@@ -271,18 +374,24 @@ begin
 	P8 = P7;
 	P9 = P8;*/
 	
-	RGBSum <= (CCD_FIFO_IN[9:0] + CCD_FIFO_IN[19:10] + CCD_FIFO_IN[29:20])/3;
+	RGBSum = (CCD_FIFO_IN[9:0] + CCD_FIFO_IN[19:10] + CCD_FIFO_IN[29:20])/3;
 	P9[9:0]   <= RGBSum;
 	P9[19:10] <= RGBSum;
 	P9[29:20] <= RGBSum;
-	P8 = P9;
-	P7 = P8;
-	P6 = EFIFO1_output;
-	P5 = P6;
-	P4 = P5;
-	P3 = EFIFO2_output;
-	P2 = P3;
-	P1 = P2;	
+	
+	//RGBSum <= (CCD_FIFO_IN[9:0] + CCD_FIFO_IN[19:10] + CCD_FIFO_IN[29:20])/3;
+	//RGBSum <= (P1Red_s + P1Blue_s + P1Green_s)/3;	
+	P8 <= P9;
+	P7 <= P8;
+	P6 <= EFIFO1_output;
+	P5 <= P6;
+	P4 <= P5;
+	P3 <= EFIFO2_output;
+	P2 <= P3;
+	P1 <= P2; 	
+	
+	
+	
 	
 	/*SumTopRowX = $signed($signed(maskEdgeX[0])*P1 + $signed(maskEdgeX[2])*P3);
 	SumMidRowX = $signed($signed(maskEdgeX[3])*P4 + $signed(maskEdgeX[5])*P6);
@@ -292,25 +401,28 @@ begin
 	SumMidRowY = 0;
 	SumBotRowY = $signed($signed(maskEdgeY[6])*P7 + $signed(maskEdgeY[7])*P8 + $signed(maskEdgeY[8])*P9);*/
 
-	
-end
-
-always@(posedge CCD_FIFO_WRCLK)
-begin
 	SumTopRowX <= maskEdgeX[0]*P9 + maskEdgeX[1]*P8 + maskEdgeX[2]*P7;
 	SumMidRowX <= maskEdgeX[3]*P6 + maskEdgeX[4]*P5 + maskEdgeX[5]*P4;
 	SumBotRowX <= maskEdgeX[6]*P3 + maskEdgeX[7]*P2 + maskEdgeX[8]*P1;
 	
 	SumTopRowY <= maskEdgeY[0]*P9 + maskEdgeY[1]*P8 + maskEdgeY[2]*P7;
 	SumMidRowY <= maskEdgeY[3]*P6 + maskEdgeY[4]*P5 + maskEdgeY[5]*P4;
-	SumBotRowY <= maskEdgeY[6]*P3 + maskEdgeY[7]*P2 + maskEdgeY[8]*P1;	
+	SumBotRowY <= maskEdgeY[6]*P3 + maskEdgeY[7]*P2 + maskEdgeY[8]*P1;
+	
 	SumX <= SumTopRowX + SumMidRowX + SumBotRowX;
 	
 	SumY <= SumTopRowY + SumMidRowY + SumBotRowY;
 	
-	edgeDetectSum <= (($signed(SumX) < 0 ? -$signed(SumX) : SumX) + ($signed(SumY) < 0 ? -$signed(SumY) : SumY));
-	//edgeDetectSum <= (P1 + P2 + P3 + P4 + P5 + P6 + P7 + P8 + P9) / 9;		
+	edgeDetectSum = (($signed(SumX) < 0 ? -$signed(SumX) : SumX) + ($signed(SumY) < 0 ? -$signed(SumY) : SumY));	
+	
 end
+
+/*always@(posedge CLK)
+begin
+	edgeDetectSum[9:0]   <= (P1Blue + P2Blue + P3Blue + P4Blue + P5Blue + P6Blue + P7Blue + P8Blue + P9Blue)/9;
+	edgeDetectSum[19:10] <= (P1Green + P2Green + P3Green + P4Green + P5Green + P6Green + P7Green + P8Green + P9Green)/9;
+	edgeDetectSum[29:20] <= (P1Red + P2Red + P3Red + P4Red + P5Red + P6Red + P7Red + P8Red + P9Red)/9;
+end*/
 
 assign CCD_Input = iSW[17] == 1 ? edgeDetectSum : P1;
 
