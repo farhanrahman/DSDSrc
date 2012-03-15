@@ -28,11 +28,11 @@ wire			ADDRESS_VALID;	//Signal to indicate output address is valid
 wire			FIFO_WRITE;		//Signal to enable load into the FIFO
 wire			EN_PIX_COUNT;	//Signal to increment of the row and column counter
 
-reg 	[31:0]	x;
-reg 	[31:0]	y;
+reg 	[15:0]	x;
+reg 	[15:0]	y;
 
-reg 	[19:0]	x_s;
-reg 	[19:0]	y_s;
+reg 	[15:0]	x_s;
+reg 	[15:0]	y_s;
 
 parameter	DISPLAY_WIDTH = 15'd800;	//Defines the number of columns in the picture
 parameter	DISPLAY_HEIGHT = 15'd480;	//Defines the number of rows in the picture
@@ -210,8 +210,8 @@ begin
 	end
 	else
 	begin
-		x_s = x[19:0];
-		y_s = y[19:0];
+		x_s = x;
+		y_s = y;
 	end
 end
 
