@@ -28,8 +28,8 @@ wire			ADDRESS_VALID;	//Signal to indicate output address is valid
 wire			FIFO_WRITE;		//Signal to enable load into the FIFO
 wire			EN_PIX_COUNT;	//Signal to increment of the row and column counter
 
-reg 	[19:0]	x;
-reg 	[19:0]	y;
+reg 	[31:0]	x;
+reg 	[31:0]	y;
 
 reg 	[19:0]	x_s;
 reg 	[19:0]	y_s;
@@ -61,10 +61,13 @@ reg	 [6:0] THETA_INCR;
 wire signed [7:0] SIN;
 wire signed [7:0] COS;
 
-wire signed [7:0] SIN_CORDIC;
-wire signed [7:0] COS_CORDIC;
+wire signed [15:0] SIN_CORDIC;
+wire signed [15:0] COS_CORDIC;
 
 assign THETA = iSW[13:8];
+
+
+wire CORDIC_DONE;
 
 //reg[15:0] x_temp;
 //reg[15:0] y_temp;
@@ -101,7 +104,13 @@ cos_lut cos_lookup_table(
 	.wren(1'b0),
 	.q(COS));
 
-CORDIC cordic(CLK, COS_CORDIC, SIN_CORDIC, THETA_INCR, reset);
+CORDIC cordic(
+	CLK, 
+	COS_CORDIC, 
+	SIN_CORDIC, 
+	THETA_INCR, 
+	RESET_N,
+	CORDIC_DONE);
 
 //-----------------------------------------------------------------------------------------------------//
 //	Pixel row and column counter
@@ -138,13 +147,13 @@ begin
 		 x 	= $signed((
 		 
 		    ($signed(OUTPUT_COLUMN) - $signed(DISPLAY_CENTER_X) + 32'sh0)*COS_CORDIC
-		  - ($signed(OUTPUT_ROW) 	- $signed(DISPLAY_CENTER_Y) + 32'sh0)*SIN_CORDIC) / 9'sd128)
+		  - ($signed(OUTPUT_ROW) 	- $signed(DISPLAY_CENTER_Y) + 32'sh0)*SIN_CORDIC) >>> 8)
 		  + DISPLAY_CENTER_X;
 		   
 		 y 	= $signed((
 		 
 			($signed(OUTPUT_COLUMN) - $signed(DISPLAY_CENTER_X) + 32'sh0)*SIN_CORDIC 
-		+ 	($signed(OUTPUT_ROW) 	- $signed(DISPLAY_CENTER_Y) + 32'sh0)*COS_CORDIC) / 9'sd128) 
+		+ 	($signed(OUTPUT_ROW) 	- $signed(DISPLAY_CENTER_Y) + 32'sh0)*COS_CORDIC) >>> 8) 
 		+ 	DISPLAY_CENTER_Y;
 	end
 	else				// LUT method
@@ -201,8 +210,8 @@ begin
 	end
 	else
 	begin
-		x_s = x;
-		y_s = y;
+		x_s = x[19:0];
+		y_s = y[19:0];
 	end
 end
 
