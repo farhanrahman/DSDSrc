@@ -56,7 +56,16 @@ begin
 		//end
 	case(state)
 		0: begin
-			z = (z0*5 <<<  8);  // shifted to match dz
+			if((z0 > 17) && (z0 <= 35))
+				z = ((35 - z0)*5 <<<  8);
+			else if((z0 > 35) && (z0 <= 53))
+				z = ((z0 - 35)*5 <<<  8);
+			else if((z0 > 53) && (z0 < 71))
+				z = ((71 - z0)*5 <<<  8);
+			else if(z0 == 71)
+				z = ((71 - z0)*5 <<<  8);
+			else
+				z = ((z0)*5 <<<  8);  // shifted to match dz
 			x = 155; // 0.6073 *2^n Shift needs to match shift out of cos and sign - 14
 			y = 0;
 			i <= 0;
@@ -78,10 +87,35 @@ begin
 					z = z + dz[i];
 				end
 				if (i == 12) begin
-					COS_Z_REG = x;
-					SIN_Z_REG = y;
-					done = 1;
-					state = 0;
+					if((z0 >=0) && (z0 < 17)) //0 <= theta < 90
+					begin
+						COS_Z_REG <= x;
+						SIN_Z_REG <= y;
+					end
+					else if((z0 >= 17) && (z0 < 35)) //90 <= theta < 180
+					begin
+						COS_Z_REG <= $signed(x) > 0 ? $signed(0 - $signed(x)) : x;//-1*(x);
+						SIN_Z_REG <= y;					
+					end
+					else if((z0 >= 35) && (z0 < 53)) //180 <= theta < 270
+					begin					
+						COS_Z_REG <= $signed(x) > 0 ? $signed(0 - $signed(x)) : x;//-1*(x);
+						SIN_Z_REG <= $signed(y) > 0 ? $signed(0 - $signed(y)) : y;//-1*(y);					
+					end
+					else if((z0 >= 53) && (z0 < 71)) //270 <= theta < 360
+					begin				
+						COS_Z_REG <= x;
+						SIN_Z_REG <= $signed(y) > 0 ? $signed(0 - $signed(y)) : y;//-1*(y);				
+					end
+					else
+					begin //theta = 360
+						COS_Z_REG <= x;
+						SIN_Z_REG <= y;				
+					end
+					//COS_Z_REG = x;
+					//SIN_Z_REG = y;					
+					done <= 1;
+					state <= 0;
 				end
 				else begin
 					i <= i + 1;
