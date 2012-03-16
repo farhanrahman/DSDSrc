@@ -63,11 +63,9 @@ wire signed [7:0] COS;
 
 wire signed [15:0] SIN_CORDIC;
 wire signed [15:0] COS_CORDIC;
+reg signed [1:0]MU; //General CORDIC variable
 
 assign THETA = iSW[13:8];
-
-
-wire CORDIC_DONE;
 
 //reg[15:0] x_temp;
 //reg[15:0] y_temp;
@@ -108,9 +106,17 @@ CORDIC cordic(
 	CLK, 
 	COS_CORDIC, 
 	SIN_CORDIC, 
-	THETA_INCR, 
-	RESET_N,
-	CORDIC_DONE);
+	THETA_INCR,
+	MU, 
+	RESET_N);
+	
+//CORDIC cordic_ripple(
+//	CLK, 
+//	COS_CORDIC, 
+//	SIN_CORDIC, 
+//	THETA_INCR,
+//	MU, 
+//	RESET_N);
 
 //-----------------------------------------------------------------------------------------------------//
 //	Pixel row and column counter
@@ -144,6 +150,7 @@ always@(OUTPUT_COLUMN or OUTPUT_ROW)// or DISPLAY_CENTER_X or DISPLAY_CENTER_Y o
 begin
 	if (iSW[14]) 		// CORDIC method
 	begin
+	MU = 1;
 		 x 	= $signed((
 		 
 		    ($signed(OUTPUT_COLUMN) - $signed(DISPLAY_CENTER_X) + 32'sh0)*COS_CORDIC
@@ -158,6 +165,7 @@ begin
 	end
 	else				// LUT method
 	begin
+	 MU = 1;
 		x 	= $signed((
 		 
 		    ($signed(OUTPUT_COLUMN) - $signed(DISPLAY_CENTER_X) + 32'sh0)*COS
