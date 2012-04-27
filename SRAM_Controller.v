@@ -130,67 +130,8 @@ parameter	DATA_OUT_LATCH = 4'hf;
 parameter	INIT = 4'h0, IDLE_SETUP = 4'h1;
 
 
-reg [29:0] edgeDetectSum; //sum of maskX + sum of maskY convolution
+wire [29:0] edgeDetectSum; //sum of maskX + sum of maskY convolution
 
-reg signed [29:0] maskEdgeX [8:0];
-reg signed [29:0] maskEdgeY [8:0];
-
-
-reg signed [29:0] SumTopRowX;
-reg signed [29:0] SumMidRowX;
-reg signed [29:0] SumBotRowX;
-
-reg signed [29:0] SumTopRowY;
-reg signed [29:0] SumMidRowY;
-reg signed [29:0] SumBotRowY;
-
-reg [9:0] RGBSum;
-
-reg signed [31:0] SumX;
-reg signed [31:0] SumY;
-
-initial
-begin
-	maskEdgeX[0] = -1;
-	maskEdgeX[1] =  0;
-	maskEdgeX[2] =	1;
-	maskEdgeX[3] = -2;
-	maskEdgeX[4] =	0;
-	maskEdgeX[5] = 	2;
-	maskEdgeX[6] = -1;
-	maskEdgeX[7] = 	0;
-	maskEdgeX[8] = 	1;
-	
-	maskEdgeY[0] = 	1;
-	maskEdgeY[1] = 	2;
-	maskEdgeY[2] =	1;
-	maskEdgeY[3] = 	0;
-	maskEdgeY[4] =	0;
-	maskEdgeY[5] =	0; 
-	maskEdgeY[6] = -1;
-	maskEdgeY[7] = -2;
-	maskEdgeY[8] = -1;
-
-	/*maskEdgeX[0] = 1;
-	maskEdgeX[1] = 2;
-	maskEdgeX[2] =	1;
-	maskEdgeX[3] = 2;
-	maskEdgeX[4] =	4;
-	maskEdgeX[5] = 2;
-	maskEdgeX[6] = 1;
-	maskEdgeX[7] = 2;
-	maskEdgeX[8] = 1;
-	              
-	maskEdgeY[0] = 1;
-	maskEdgeY[1] = 1;
-	maskEdgeY[2] =	1;
-	maskEdgeY[3] = 1;
-	maskEdgeY[4] =	1;
-	maskEdgeY[5] =	1; 
-	maskEdgeY[6] = 1;
-	maskEdgeY[7] = 1;
-	maskEdgeY[8] = 1;	*/	
-end               
 
 
 //-----------------------------------------------------------------------------------------------------//
@@ -207,35 +148,15 @@ PIXEL_MAP PT1(
 //-----------------------------------------------------------------------------------------------------//
 //	FIFOS
 		
-reg[29:0] P1,P2,P3,P4,P5,P6,P7,P8,P9;
-
-reg[10:0] P1Red,P2Red,P3Red,P4Red,P5Red,P6Red,P7Red,P8Red,P9Red;
-reg[10:0] P1Blue,P2Blue,P3Blue,P4Blue,P5Blue,P6Blue,P7Blue,P8Blue,P9Blue;
-reg[10:0] P1Green,P2Green,P3Green,P4Green,P5Green,P6Green,P7Green,P8Green,P9Green;
-
-reg[29:0] P1Red_s;
-reg[29:0] P1Blue_s;
-reg[29:0] P1Green_s;
-
-wire [29:0] EFIFO1_output; 
-wire [29:0] EFIFO2_output;
-wire [29:0] EFIFO1_input; 
-wire [29:0] EFIFO2_input;		
-		
-wire [29:0] fifoRed1_output; 
-wire [29:0] fifoRed2_output;
-
-wire [29:0] fifoGreen1_output; 
-wire [29:0] fifoGreen2_output;
-
-wire [29:0] fifoBlue1_output; 
-wire [29:0] fifoBlue2_output;		
+wire[10:0] P1Red;
+wire[10:0] P1Blue;
+wire[10:0] P1Green;	
 		
 wire [29:0] CCD_Input;		
 		
 CCD_FIFO	CCD_FIFO_inst (
 		.aclr (~RESET_N),
-		.data (CCD_Input),//edgeDetectSum),
+		.data (CCD_Input),
 		.rdclk (CLK),
 		.rdreq (CCD_FIFO_RD),
 		.wrclk (CCD_FIFO_WRCLK),
@@ -247,179 +168,28 @@ CCD_FIFO	CCD_FIFO_inst (
 	
 	
 
-screen_fifo EFIFO1(
-	.clock(CCD_FIFO_WRCLK),
-	.shiftin(P7),//P3),
-	.shiftout(EFIFO1_output),
-	.clken(CCD_FIFO_WE),
-	.taps());
-	
-screen_fifo EFIFO2(
-	.clock(CCD_FIFO_WRCLK),
-	.shiftin(P4),//P6),
-	.shiftout(EFIFO2_output),
-	.clken(CCD_FIFO_WE),
-	.taps());
+/*BLUR module for computing blurring of pixels*/
+BLUR blur_block(.CCD_FIFO_WRCLK(CCD_FIFO_WRCLK), 
+				.iSW(iSW), 
+				.P1RedOut(P1Red), 
+				.P1GreenOut(P1Green), 
+				.P1BlueOut(P1Blue), 
+				.CCD_FIFO_WE(CCD_FIFO_WE), 
+				.CCD_FIFO_IN(CCD_FIFO_IN));
 
-	
-screen_fifo fifoRed1(
-	.clock(CCD_FIFO_WRCLK),
-	.shiftin(P7Red),//P3),
-	.shiftout(fifoRed1_output),
-	.clken(CCD_FIFO_WE),
-	.taps());
-	
-screen_fifo fifoRed2(
-	.clock(CCD_FIFO_WRCLK),
-	.shiftin(P4Red),//P6),
-	.shiftout(fifoRed2_output),
-	.clken(CCD_FIFO_WE),
-	.taps());
-	
+/*EDGE_DETECT module for computing edge detection in real time video data
+ *Note: the BLUR module output is the input to this module. They are
+ *essentially daisy chained together.*/
+EDGE_DETECT edge_detect(
+				.CCD_FIFO_WRCLK(CCD_FIFO_WRCLK), 
+				.iSW(iSW), 
+				.edgeDetectSumOutput(edgeDetectSum), 
+				.CCD_FIFO_WE(CCD_FIFO_WE), 
+				.P1Red(P1Red), 
+				.P1Green(P1Green), 
+				.P1Blue(P1Blue));
 
-screen_fifo fifoGreen1(
-	.clock(CCD_FIFO_WRCLK),
-	.shiftin(P7Green),//P3),
-	.shiftout(fifoGreen1_output),
-	.clken(CCD_FIFO_WE),
-	.taps());
-	
-screen_fifo fifoGreen2(
-	.clock(CCD_FIFO_WRCLK),
-	.shiftin(P4Green),//P6),
-	.shiftout(fifoGreen2_output),
-	.clken(CCD_FIFO_WE),
-	.taps());
-	
-screen_fifo fifoBlue1(
-	.clock(CCD_FIFO_WRCLK),
-	.shiftin(P7Blue),//P3),
-	.shiftout(fifoBlue1_output),
-	.clken(CCD_FIFO_WE),	
-	.taps());
-	
-screen_fifo fifoBlue2(
-	.clock(CCD_FIFO_WRCLK),
-	.shiftin(P4Blue),//P6),
-	.shiftout(fifoBlue2_output),
-	.clken(CCD_FIFO_WE),
-	.taps());
-	
-	
-	//This is for edge detection
-
-always@(posedge CCD_FIFO_WRCLK)
-begin
-	P9Red <= CCD_FIFO_IN[29:20];
-	P9Green <= CCD_FIFO_IN[19:10];
-	P9Blue <= CCD_FIFO_IN[9:0];
-	
-	P8Red <= P9Red;
-	P8Green <= P9Green;
-	P8Blue <= P9Blue;
-	
-	P7Red <= P8Red;
-	P7Green <= P8Green;
-	P7Blue <= P8Blue;
-	
-	P6Red <= fifoRed1_output;
-	P6Green <= fifoGreen1_output;	
-	P6Blue <= fifoBlue1_output;	
-	
-	P5Red <= P6Red;
-	P5Green <= P6Green;
-	P5Blue <= P6Blue;
-
-	P4Red <= P5Red;
-	P4Green <= P5Green;
-	P4Blue <= P5Blue;
-	
-	P3Red <= fifoRed2_output;
-	P3Green <= fifoGreen2_output;
-	P3Blue <= fifoBlue2_output;
-	
-	P2Red <= P3Red;
-	P2Green <= P3Green;
-	P2Blue <= P3Blue;
-	
-	
-	if(iSW[16] == 1)
-	begin
-		P1Red <= (P1Red + P2Red + P3Red + P4Red + P5Red + P6Red + P7Red + P8Red + P9Red)/9;
-		P1Green <= (P1Green + P2Green + P3Green + P4Green + P5Green + P6Green + P7Green + P8Green + P9Green)/9;
-		P1Blue <= (P1Blue + P2Blue + P3Blue + P4Blue + P5Blue + P6Blue + P7Blue + P8Blue + P9Blue)/9;
-	end
-	else
-	begin
-		P1Red <= P2Red;
-		P1Green <= P2Green;	
-		P1Blue <= P2Blue;		
-	end
-end
-
-always@(posedge CCD_FIFO_WRCLK)
-begin
-	P1Red_s <= P1Red;
-	P1Green_s <= P1Green;
-	P1Blue_s <= P1Blue;
-end	
-	
-always@(posedge CCD_FIFO_WRCLK)
-begin
-	if(iSW[17] == 1)
-	begin
-		RGBSum = (P1Red + P1Green + P1Blue)/3;
-		P9[9:0]   <= RGBSum;
-		P9[19:10] <= RGBSum;
-		P9[29:20] <= RGBSum;
-	end
-	else
-	begin
-		P9[9:0]   <= P1Blue;
-		P9[19:10] <= P1Green;
-		P9[29:20] <= P1Red;
-	end
-	//RGBSum <= (CCD_FIFO_IN[9:0] + CCD_FIFO_IN[19:10] + CCD_FIFO_IN[29:20])/3;
-	//RGBSum <= (P1Red_s + P1Blue_s + P1Green_s)/3;	
-	P8 <= P9;
-	P7 <= P8;
-	P6 <= EFIFO1_output;
-	P5 <= P6;
-	P4 <= P5;
-	P3 <= EFIFO2_output;
-	P2 <= P3;
-	P1 <= P2; 	
-
-	SumTopRowX <= maskEdgeX[0]*P9 + maskEdgeX[1]*P8 + maskEdgeX[2]*P7;
-	SumMidRowX <= maskEdgeX[3]*P6 + maskEdgeX[4]*P5 + maskEdgeX[5]*P4;
-	SumBotRowX <= maskEdgeX[6]*P3 + maskEdgeX[7]*P2 + maskEdgeX[8]*P1;
-	
-	SumTopRowY <= maskEdgeY[0]*P9 + maskEdgeY[1]*P8 + maskEdgeY[2]*P7;
-	SumMidRowY <= maskEdgeY[3]*P6 + maskEdgeY[4]*P5 + maskEdgeY[5]*P4;
-	SumBotRowY <= maskEdgeY[6]*P3 + maskEdgeY[7]*P2 + maskEdgeY[8]*P1;
-	
-	SumX <= SumTopRowX + SumMidRowX + SumBotRowX;
-	
-	SumY <= SumTopRowY + SumMidRowY + SumBotRowY;
-	
-	if(iSW[17] == 1)
-	begin
-		edgeDetectSum = (($signed(SumX) < 0 ? -$signed(SumX) : SumX) + ($signed(SumY) < 0 ? -$signed(SumY) : SumY));
-		
-		/*if(edgeDetectSum > 30'd1073741823)
-		begin
-			edgeDetectSum = 1073741824;
-		end*/
-			
-	end
-	else
-	begin
-		edgeDetectSum = P1;
-	end
-	
-end
-
-assign CCD_Input = edgeDetectSum;//iSW[17] == 1 ? edgeDetectSum : P1;
+assign CCD_Input = edgeDetectSum;
 
 	
 

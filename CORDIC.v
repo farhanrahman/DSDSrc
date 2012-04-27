@@ -14,7 +14,7 @@ reg signed [15:0] y;
 reg signed [15:0] z;
 reg signed [15:0] dx;
 reg signed [15:0] dy;
-reg [16:0] dz[12:0];
+reg [16:0] e[12:0];
 
 reg state;
 reg done;
@@ -33,19 +33,19 @@ assign sin_z = SIN_Z_REG;
 //assign RESET_REG = reset;
 initial begin
 
-dz[0]  = 11520; // arctan(2^0) << 8
-dz[1]  = 6801; // arctan(2^-1) << 8
-dz[2]  = 3593;
-dz[3]  = 1824;
-dz[4]  = 916;
-dz[5]  = 458;
-dz[6]  = 229;
-dz[7]  = 115;
-dz[8]  = 57;
-dz[9]  = 29;
-dz[10] = 14;
-dz[11] = 7;
-dz[12] = 4;
+e[0]  = 11520; 	// arctan(2^0) << 8
+e[1]  = 6801; 	// arctan(2^-1) << 8
+e[2]  = 3593;	// arctan(2^-2) << 8
+e[3]  = 1824;	// arctan(2^-3) << 8
+e[4]  = 916;	// arctan(2^-4) << 8
+e[5]  = 458;	// arctan(2^-5) << 8
+e[6]  = 229;	// arctan(2^-6) << 8
+e[7]  = 115;	// arctan(2^-7) << 8
+e[8]  = 57;		// arctan(2^-8) << 8
+e[9]  = 29;		// arctan(2^-9) << 8
+e[10] = 14;		// arctan(2^-10) << 8
+e[11] = 7;		// arctan(2^-11) << 8
+e[12] = 4;		// arctan(2^-12) << 8
 
 end
 
@@ -65,7 +65,7 @@ begin
 			else if(z0 == 71)
 				z = ((71 - z0)*5 <<<  8);
 			else
-				z = ((z0)*5 <<<  8);  // shifted to match dz
+				z = ((z0)*5 <<<  8);  // shifted to match e
 			x = 155; // 0.6073 *2^n Shift needs to match shift out of cos and sign - 14
 			y = 0;
 			i <= 0;
@@ -74,17 +74,17 @@ begin
 		end
 		1: begin
 			//if (done == 0) begin
-				dy = x >>> i;
-				dx = y >>> i;
+				dy = y >>> i;
+				dx = x >>> i;
 				if (z >= 0) begin
-					x = x - dx;
-					y = y + dy;
-					z = z - dz[i];
+					x = x - dy;
+					y = y + dx;
+					z = z - e[i];
 				end
 				else begin
-					x = x + dx;
-					y = y - dy;
-					z = z + dz[i];
+					x = x + dy;
+					y = y - dx;
+					z = z + e[i];
 				end
 				if (i == 12) begin
 					if((z0 >=0) && (z0 < 17)) //0 <= theta < 90
